@@ -1,0 +1,7 @@
+{
+  "name": "Nails by Uma",
+  "description": "Nails by Uma is your premier luxury nail salon offering professional manicure, pedicure, gel nails, nail art, mehndi, bridal packages & beauty services. Book in-salon or home service today.",
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
