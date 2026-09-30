@@ -7,6 +7,7 @@ interface ReviewCardProps {
   reviewText: string;
   photoUrl?: string;
   createdAt: string;
+  className?: string;
 }
 
 export function ReviewCard({
@@ -16,6 +17,7 @@ export function ReviewCard({
   reviewText,
   photoUrl,
   createdAt,
+  className = '',
 }: ReviewCardProps) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -27,8 +29,8 @@ export function ReviewCard({
   };
 
   return (
-    <div className="glass-card p-6 rounded-2xl hover:shadow-lg transition-shadow">
-      <div className="flex items-start gap-4">
+    <div className={`glass-card p-6 rounded-2xl hover:shadow-lg transition-shadow ${className}`}>
+      <div className="flex items-start gap-4 h-full">
         {/* Customer Photo or Avatar */}
         <div className="flex-shrink-0">
           {photoUrl ? (

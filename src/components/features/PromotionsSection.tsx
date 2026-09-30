@@ -115,33 +115,37 @@ export function PromotionsSection() {
   if (loading || promotions.length === 0) return null;
 
   return (
-    <section className="py-20 px-4 bg-gradient-to-b from-accent/5 to-primary/5">
-      <div className="container mx-auto max-w-7xl">
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary/20 to-accent/20 px-4 py-2 rounded-full mb-4 animate-pulse-slow">
+    <section className="py-20 sm:py-28 px-4 relative overflow-hidden bg-gradient-to-b from-amber-50/20 via-pink-50/30 to-purple-50/20">
+      {/* Glowing Ambient Mesh Orbs */}
+      <div className="absolute top-10 right-10 w-96 h-96 glow-orb-purple opacity-50 pointer-events-none" />
+      <div className="absolute bottom-10 left-10 w-96 h-96 glow-orb-pink opacity-60 pointer-events-none" />
+
+      <div className="container mx-auto max-w-7xl relative z-10">
+        <div className="text-center mb-14 space-y-3">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-100 to-amber-100 dark:bg-pink-950/60 px-4 py-2 rounded-full shadow-xs">
             <Tag className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium text-primary">Limited Time Offers</span>
+            <span className="text-xs sm:text-sm font-bold tracking-wider text-primary uppercase">Limited Time Offers &amp; Combos</span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold tracking-tight text-foreground">
             Special{' '}
-            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Promotions
+            <span className="bg-gradient-to-r from-primary via-rose-500 to-accent bg-clip-text text-transparent">
+              Promotions &amp; Packages
             </span>
           </h2>
-          <p className="text-lg text-muted-foreground mb-6">
-            Exclusive deals and discounts just for you!
+          <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto font-light leading-relaxed">
+            Exclusive discounts and curated beauty combos crafted for your special occasions!
           </p>
 
           {/* Category Filter */}
-          <div className="flex flex-wrap items-center justify-center gap-2">
+          <div className="flex flex-wrap items-center justify-center gap-2.5 pt-4">
             {categories.map((cat) => (
               <button
                 key={cat.value}
                 onClick={() => setSelectedCategory(cat.value)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                className={`px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer ${
                   selectedCategory === cat.value
-                    ? 'bg-gradient-to-r from-primary to-accent text-white shadow-lg'
-                    : 'bg-secondary text-muted-foreground hover:bg-secondary/80'
+                    ? 'bg-gradient-to-r from-pink-600 via-rose-500 to-amber-500 text-white shadow-md scale-105'
+                    : 'bg-white/80 dark:bg-slate-900/80 border border-pink-200/80 text-foreground hover:bg-pink-50/50 backdrop-blur-sm'
                 }`}
               >
                 {cat.label}
@@ -150,7 +154,7 @@ export function PromotionsSection() {
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredPromotions.map((promo) => {
             const timeRemaining = getTimeRemaining(promo.valid_until);
             const daysRemaining = getDaysRemaining(promo.valid_until);
@@ -159,8 +163,8 @@ export function PromotionsSection() {
             return (
               <div
                 key={promo.id}
-                className={`glass-card rounded-2xl overflow-hidden group hover:shadow-2xl transition-all hover:scale-105 ${
-                  isUrgent ? 'ring-2 ring-orange-500 animate-pulse-slow' : ''
+                className={`glass-card rounded-3xl overflow-hidden group hover:shadow-2xl hover:shadow-pink-500/15 transition-all duration-400 border border-white/80 dark:border-white/10 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl ${
+                  isUrgent ? 'ring-2 ring-amber-500' : ''
                 }`}
               >
                 {/* Promotion Image */}

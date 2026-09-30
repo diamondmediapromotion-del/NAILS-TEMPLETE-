@@ -10,7 +10,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { ReviewCard } from '@/components/features/ReviewCard';
 import { ReviewIncentiveBanner } from '@/components/features/ReviewIncentiveBanner';
-import { ArrowLeft, Star, Upload, Loader2, MessageSquarePlus, Gift, Camera } from 'lucide-react';
+import { ReviewsCarousel } from '@/components/features/ReviewsCarousel';
+import { ArrowLeft, Star, Upload, Loader2, MessageSquarePlus, Gift, Camera, LayoutGrid, SlidersHorizontal, Sparkles, ThumbsUp } from 'lucide-react';
 
 interface Review {
   id: string;
@@ -42,6 +43,8 @@ export function ReviewsPage() {
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [viewMode, setViewMode] = useState<'carousel' | 'grid'>('carousel');
+  const [filterRating, setFilterRating] = useState<'all' | '5' | '4+'>('all');
 
   // Form fields
   const [customerName, setCustomerName] = useState('');
@@ -437,7 +440,83 @@ export function ReviewsPage() {
           </form>
         )}
 
-        {/* Reviews List */}
+        {/* Reviews Toolbar & Controls */}
+        {!loading && reviews.length > 0 && (
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 bg-rose-50/50 dark:bg-rose-950/20 p-4 rounded-2xl border border-rose-100 dark:border-rose-900/40">
+            {/* Rating Filter Tabs */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap mr-1 flex items-center gap-1">
+                <SlidersHorizontal className="w-3.5 h-3.5" />
+                Filter:
+              </span>
+              <button
+                type="button"
+                onClick={() => setFilterRating('all')}
+                className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all whitespace-nowrap ${
+                  filterRating === 'all'
+                    ? 'bg-rose-600 text-white shadow-sm'
+                    : 'bg-background text-muted-foreground hover:text-foreground border border-rose-200/60'
+                }`}
+              >
+                All ({reviews.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterRating('5')}
+                className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all whitespace-nowrap flex items-center gap-1 ${
+                  filterRating === '5'
+                    ? 'bg-rose-600 text-white shadow-sm'
+                    : 'bg-background text-muted-foreground hover:text-foreground border border-rose-200/60'
+                }`}
+              >
+                <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                5★ Only ({reviews.filter((r) => r.rating === 5).length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterRating('4+')}
+                className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all whitespace-nowrap flex items-center gap-1 ${
+                  filterRating === '4+'
+                    ? 'bg-rose-600 text-white shadow-sm'
+                    : 'bg-background text-muted-foreground hover:text-foreground border border-rose-200/60'
+                }`}
+              >
+                <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                4★ & Above ({reviews.filter((r) => r.rating >= 4).length})
+              </button>
+            </div>
+
+            {/* View Mode Switcher */}
+            <div className="flex items-center gap-1 bg-background p-1 rounded-xl border border-rose-200/60 shrink-0 self-end sm:self-auto">
+              <button
+                type="button"
+                onClick={() => setViewMode('carousel')}
+                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center gap-1.5 whitespace-nowrap ${
+                  viewMode === 'carousel'
+                    ? 'bg-rose-600 text-white shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Carousel View</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('grid')}
+                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center gap-1.5 whitespace-nowrap ${
+                  viewMode === 'grid'
+                    ? 'bg-rose-600 text-white shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <LayoutGrid className="w-3.5 h-3.5" />
+                <span>Grid View</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Reviews Content Area */}
         {loading ? (
           <div className="text-center py-12">
             <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
@@ -455,19 +534,47 @@ export function ReviewsPage() {
             </Button>
           </div>
         ) : (
-          <div className="grid gap-6">
-            {reviews.map((review) => (
-              <ReviewCard
-                key={review.id}
-                customerName={review.customer_name}
-                serviceName={review.service_name || undefined}
-                rating={review.rating}
-                reviewText={review.review_text}
-                photoUrl={review.photo_url || undefined}
-                createdAt={review.created_at}
-              />
-            ))}
-          </div>
+          (() => {
+            const filtered = reviews.filter((r) => {
+              if (filterRating === '5') return r.rating === 5;
+              if (filterRating === '4+') return r.rating >= 4;
+              return true;
+            });
+
+            if (filtered.length === 0) {
+              return (
+                <div className="text-center py-12 glass-card rounded-2xl">
+                  <p className="text-muted-foreground mb-4">
+                    No reviews match the selected filter.
+                  </p>
+                  <Button variant="outline" size="sm" onClick={() => setFilterRating('all')}>
+                    Reset Filter
+                  </Button>
+                </div>
+              );
+            }
+
+            if (viewMode === 'carousel') {
+              return <ReviewsCarousel reviews={filtered} autoPlayInterval={4500} />;
+            }
+
+            return (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filtered.map((review) => (
+                  <ReviewCard
+                    key={review.id}
+                    customerName={review.customer_name}
+                    serviceName={review.service_name || undefined}
+                    rating={review.rating}
+                    reviewText={review.review_text}
+                    photoUrl={review.photo_url || undefined}
+                    createdAt={review.created_at}
+                    className="h-full border border-rose-100 dark:border-rose-950/30"
+                  />
+                ))}
+              </div>
+            );
+          })()
         )}
       </div>
     </div>

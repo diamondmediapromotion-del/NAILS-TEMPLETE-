@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase, Service } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,10 +9,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import {
   ArrowLeft, MapPin, Calendar as CalendarIcon, Clock, IndianRupee, Upload,
-  Loader2, Tag, CheckCircle, XCircle, Star, User, AlertCircle, ShieldCheck, Timer
+  Loader2, Tag, CheckCircle, XCircle, Star, User, AlertCircle, ShieldCheck, Timer,
+  Plus, Trash2, Sparkles, Layers
 } from 'lucide-react';
 import { calculateHomeServiceCharge, formatINR, MAX_SERVICE_DISTANCE } from '@/lib/homeServiceCharges';
 import { FunctionsHttpError } from '@supabase/supabase-js';
+import { ServiceSelectorModal } from '@/components/features/ServiceSelectorModal';
+import { getRedeemedVouchers, markVoucherUsed } from '@/lib/luxePoints';
 
 interface Technician {
   id: string;
@@ -24,12 +27,15 @@ interface Technician {
 
 export function NewBookingPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const summaryRef = useRef<HTMLDivElement>(null);
 
   const [services, setServices] = useState<Service[]>([]);
   const [technicians, setTechnicians] = useState<Technician[]>([]);
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [selectedServices, setSelectedServices] = useState<Service[]>([]);
+  const selectedService = selectedServices[0] || null;
+  const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
   const [selectedTechnician, setSelectedTechnician] = useState<Technician | null>(null);
   const [visitType, setVisitType] = useState<'salon' | 'home'>('salon');
   const [distance, setDistance] = useState<string>('');
@@ -37,6 +43,26 @@ export function NewBookingPage() {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [agreedToPolicy, setAgreedToPolicy] = useState(false);
+
+  // Multi-select helpers
+  const handleToggleService = (service: Service) => {
+    setSelectedServices((prev) => {
+      const exists = prev.some((s) => s.id === service.id);
+      if (exists) {
+        return prev.filter((s) => s.id !== service.id);
+      } else {
+        return [...prev, service];
+      }
+    });
+  };
+
+  const handleRemoveService = (serviceId: string) => {
+    setSelectedServices((prev) => prev.filter((s) => s.id !== serviceId));
+  };
+
+  const handleClearAllServices = () => {
+    setSelectedServices([]);
+  };
 
   // Coupon state
   const [couponCode, setCouponCode] = useState('');
@@ -78,7 +104,46 @@ export function NewBookingPage() {
       .select('*')
       .eq('is_active', true)
       .order('category', { ascending: true });
-    if (!error) setServices(data || []);
+    if (!error) {
+      const allServices = data || [];
+      setServices(allServices);
+
+      const locState = location.state as { service?: Service } | undefined;
+      if (locState?.service) {
+        setSelectedServices([locState.service]);
+      }
+
+      const pkgStr = localStorage.getItem('selectedPackage');
+      if (pkgStr) {
+        try {
+          const pkg = JSON.parse(pkgStr);
+          const matched = allServices.find((s: Service) => s.name.toLowerCase() === pkg.name.toLowerCase() || s.id === pkg.id);
+          if (matched) {
+            setSelectedServices([matched]);
+          } else {
+            const customPkgService: Service = {
+              id: pkg.id || `pkg-${Date.now()}`,
+              name: pkg.name,
+              category: 'basic',
+              description: `Curated Package: ${pkg.name}`,
+              price_inr: pkg.price,
+              duration_minutes: 120,
+              image_url: '/src/assets/images/beauty_combo_services_1790676453996.jpg',
+              is_active: true,
+              created_at: new Date().toISOString(),
+            };
+            setSelectedServices([customPkgService]);
+          }
+          toast({
+            title: `Package Selected: ${pkg.name}`,
+            description: `Package price ₹${pkg.price.toLocaleString('en-IN')} has been applied.`,
+          });
+        } catch {
+          // ignore
+        }
+        localStorage.removeItem('selectedPackage');
+      }
+    }
   };
 
   const fetchTechnicians = async () => {
@@ -118,7 +183,7 @@ export function NewBookingPage() {
         setAppliedCoupon({ ...appliedCoupon, discountAmount: newDiscount });
       }
     }
-  }, [selectedService, homeServiceCharge]);
+  }, [selectedServices, homeServiceCharge]);
 
   const handleScreenshotChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -190,7 +255,10 @@ export function NewBookingPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedService) { toast({ title: 'Service Required', description: 'Please select a service', variant: 'destructive' }); return; }
+    if (selectedServices.length === 0) {
+      toast({ title: 'Service Required', description: 'Please select at least one service', variant: 'destructive' });
+      return;
+    }
     if (!appointmentDate || !appointmentTime) { toast({ title: 'Date & Time Required', variant: 'destructive' }); return; }
 
     const selectedDateTime = new Date(`${appointmentDate}T${appointmentTime}`);
@@ -229,9 +297,9 @@ export function NewBookingPage() {
           customer_name: customerName,
           customer_phone: customerPhone,
           customer_email: customerEmail || null,
-          service_id: selectedService.id,
-          service_name: selectedService.name,
-          category: selectedService.category,
+          service_id: selectedServices.map((s) => s.id).join(', '),
+          service_name: selectedServices.map((s) => s.name).join(' + '),
+          category: Array.from(new Set(selectedServices.map((s) => s.category))).join(', '),
           visit_type: visitType,
           address: visitType === 'home' ? address : null,
           distance_km: visitType === 'home' ? parseFloat(distance) : null,
@@ -244,7 +312,7 @@ export function NewBookingPage() {
           booking_status: 'pending_verification',
           technician_name: selectedTechnician?.name || null,
           technician_id: selectedTechnician?.id || null,
-          estimated_duration_minutes: selectedService.duration_minutes,
+          estimated_duration_minutes: totalDurationMinutes,
         })
         .select()
         .single();
@@ -259,8 +327,12 @@ export function NewBookingPage() {
         payment_status: 'pending',
       });
 
+      // Save customer phone for loyalty tracking
+      localStorage.setItem('customer_phone', customerPhone);
+
       // Redeem coupon if applied
       if (appliedCoupon) {
+        markVoucherUsed(customerPhone, appliedCoupon.coupon_code);
         supabase.functions.invoke('review-incentive-engine', {
           body: { action: 'redeem_coupon', couponCode: appliedCoupon.coupon_code, phone: customerPhone, bookingId: bookingData.id },
         }).then(() => console.log('Coupon redeemed'));
@@ -273,7 +345,7 @@ export function NewBookingPage() {
           phone: customerPhone,
           customerName,
           bookingId: bookingData.booking_id,
-          serviceName: selectedService.name,
+          serviceName: selectedServices.map((s) => s.name).join(' + '),
           technicianName: selectedTechnician?.name || null,
           appointmentDate,
           appointmentTime,
@@ -294,9 +366,9 @@ export function NewBookingPage() {
           customerName,
           customerEmail: customerEmail || null,
           customerPhone,
-          serviceName: selectedService.name,
+          serviceName: selectedServices.map((s) => s.name).join(' + '),
           technicianName: selectedTechnician?.name || null,
-          estimatedDurationMinutes: selectedService.duration_minutes,
+          estimatedDurationMinutes: totalDurationMinutes,
           appointmentDate,
           appointmentTime,
           visitType,
@@ -327,17 +399,12 @@ export function NewBookingPage() {
     }
   };
 
-  const baseTotalPrice = selectedService ? selectedService.price_inr + homeServiceCharge : 0;
+  const servicesSubtotal = selectedServices.reduce((sum, s) => sum + s.price_inr, 0);
+  const totalDurationMinutes = selectedServices.reduce((sum, s) => sum + s.duration_minutes, 0);
+  const baseTotalPrice = selectedServices.length > 0 ? servicesSubtotal + homeServiceCharge : 0;
   const couponDiscount = appliedCoupon ? appliedCoupon.discountAmount : 0;
   const totalPrice = Math.max(0, baseTotalPrice - couponDiscount);
   const advanceAmount = Math.round(totalPrice * 0.5);
-
-  // Group services by category
-  const servicesByCategory = services.reduce<Record<string, Service[]>>((acc, s) => {
-    if (!acc[s.category]) acc[s.category] = [];
-    acc[s.category].push(s);
-    return acc;
-  }, {});
 
   const formatDuration = (mins: number) => {
     if (mins < 60) return `${mins} mins`;
@@ -363,68 +430,140 @@ export function NewBookingPage() {
           {/* LEFT: Form Sections */}
           <div className="flex-1 space-y-6 min-w-0">
 
-            {/* ── 1. SERVICE SELECTION ── */}
+            {/* ── 1. SELECTED SERVICES (CLEAN & COMPACT VIEW) ── */}
             <section className="glass-card p-6 rounded-2xl">
-              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <span className="w-7 h-7 rounded-full bg-primary text-white text-sm flex items-center justify-center font-bold">1</span>
-                Select Service
-              </h2>
-              <div className="space-y-3">
-                {Object.entries(servicesByCategory).map(([category, catServices]) => (
-                  <div key={category}>
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-1">
-                      {category}
-                    </p>
-                    <div className="space-y-2">
-                      {catServices.map((service) => (
-                        <button
-                          key={service.id}
-                          type="button"
-                          onClick={() => {
-                            setSelectedService(service);
-                            setSelectedTechnician(null);
-                          }}
-                          className={`w-full p-4 rounded-xl border-2 text-left transition-all hover:border-primary/50 ${
-                            selectedService?.id === service.id
-                              ? 'border-primary bg-primary/5 shadow-sm'
-                              : 'border-border bg-white'
-                          }`}
-                        >
-                          <div className="flex justify-between items-start">
-                            <div className="flex-1 min-w-0 pr-3">
-                              <h3 className="font-semibold text-sm">{service.name}</h3>
-                              {service.description && (
-                                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{service.description}</p>
-                              )}
-                              <div className="flex items-center gap-3 mt-1.5">
-                                <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                                  <Timer className="w-3 h-3" />
-                                  {formatDuration(service.duration_minutes)}
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold flex items-center gap-2">
+                  <span className="w-7 h-7 rounded-full bg-primary text-white text-sm flex items-center justify-center font-bold">1</span>
+                  Selected Services
+                </h2>
+                {selectedServices.length > 0 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsServiceModalOpen(true)}
+                    className="border-primary/40 text-primary hover:bg-primary/10 rounded-xl text-xs gap-1.5 h-8 font-semibold"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    Add / Edit Services
+                  </Button>
+                )}
+              </div>
+
+              {selectedServices.length === 0 ? (
+                <div className="text-center py-10 px-4 border-2 border-dashed border-pink-200 rounded-2xl bg-pink-50/30">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-rose flex items-center justify-center mx-auto mb-3 shadow-soft">
+                    <Sparkles className="w-7 h-7 text-primary" />
+                  </div>
+                  <h3 className="font-bold text-lg text-foreground mb-1">No Services Selected Yet</h3>
+                  <p className="text-sm text-muted-foreground mb-5 max-w-md mx-auto">
+                    Choose one or multiple nail, mehndi, and beauty services with individual prices and durations.
+                  </p>
+                  <Button
+                    type="button"
+                    onClick={() => setIsServiceModalOpen(true)}
+                    className="bg-gradient-to-r from-primary to-accent text-white px-6 h-11 rounded-xl shadow-md font-semibold hover:scale-105 transition-all"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Browse &amp; Select Services
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between pb-2 border-b border-border/60">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        Selected ({selectedServices.length})
+                      </span>
+                      <span className="text-xs font-bold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                        <Timer className="w-3 h-3" />
+                        {formatDuration(totalDurationMinutes)}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleClearAllServices}
+                        className="h-7 text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                      >
+                        Clear All
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* List of ONLY the selected services */}
+                  <div className="space-y-2.5">
+                    {selectedServices.map((service, index) => (
+                      <div
+                        key={service.id}
+                        className="flex items-center justify-between p-3.5 sm:p-4 rounded-xl border border-pink-100 bg-white shadow-xs hover:border-primary/30 transition-all group"
+                      >
+                        <div className="flex items-center gap-3 min-w-0 flex-1 pr-3">
+                          <span className="w-6 h-6 rounded-full bg-pink-100 text-pink-700 text-xs font-bold flex items-center justify-center flex-shrink-0">
+                            {index + 1}
+                          </span>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h4 className="font-semibold text-sm text-foreground">{service.name}</h4>
+                              <span className="text-[10px] uppercase font-bold text-pink-700 bg-pink-50 border border-pink-200/60 px-2 py-0.5 rounded-full">
+                                {service.category}
+                              </span>
+                              {service.is_premium && (
+                                <span className="text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full">
+                                  Premium
                                 </span>
-                                {service.is_premium && (
-                                  <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">
-                                    Premium
-                                  </span>
-                                )}
-                              </div>
+                              )}
                             </div>
-                            <div className="text-right flex-shrink-0">
-                              <p className="font-bold text-primary">{formatINR(service.price_inr)}</p>
-                              {selectedService?.id === service.id && (
-                                <CheckCircle className="w-4 h-4 text-primary ml-auto mt-1" />
+                            <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
+                              <span className="flex items-center gap-1">
+                                <Timer className="w-3 h-3 text-muted-foreground/70" />
+                                {formatDuration(service.duration_minutes)}
+                              </span>
+                              {service.home_service_allowed && (
+                                <span className="text-green-600 font-medium flex items-center gap-0.5">
+                                  <MapPin className="w-3 h-3" /> Home available
+                                </span>
                               )}
                             </div>
                           </div>
-                        </button>
-                      ))}
-                    </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 flex-shrink-0">
+                          <span className="font-bold text-base text-primary">
+                            {formatINR(service.price_inr)}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveService(service.id)}
+                            className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+                            title="Remove service"
+                            aria-label={`Remove ${service.name}`}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+
+                  {/* Summary bar */}
+                  <div className="mt-3 p-3.5 rounded-xl bg-pink-50/50 border border-pink-100 flex items-center justify-between text-xs sm:text-sm">
+                    <span className="text-muted-foreground">
+                      Combined Services Total ({selectedServices.length} items · {formatDuration(totalDurationMinutes)}):
+                    </span>
+                    <span className="font-bold text-foreground text-sm sm:text-base">
+                      {formatINR(servicesSubtotal)}
+                    </span>
+                  </div>
+                </div>
+              )}
             </section>
 
             {/* ── 2. TECHNICIAN SELECTION ── */}
-            {selectedService && (
+            {selectedServices.length > 0 && (
               <section className="glass-card p-6 rounded-2xl">
                 <h2 className="text-xl font-semibold mb-1 flex items-center gap-2">
                   <span className="w-7 h-7 rounded-full bg-primary text-white text-sm flex items-center justify-center font-bold">2</span>
@@ -559,17 +698,17 @@ export function NewBookingPage() {
                   <Input id="time" type="time" value={appointmentTime} onChange={(e) => setAppointmentTime(e.target.value)} required className="mt-1" />
                 </div>
               </div>
-              {selectedService && (
+              {selectedServices.length > 0 && (
                 <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-lg px-3 py-2">
                   <Timer className="w-4 h-4 text-primary" />
-                  Estimated duration: <strong className="text-foreground">{formatDuration(selectedService.duration_minutes)}</strong>
+                  Estimated duration: <strong className="text-foreground">{formatDuration(totalDurationMinutes)}</strong>
                   {appointmentTime && (
                     <>
                       &nbsp;→ ends around <strong className="text-foreground">
                         {(() => {
                           const [h, m] = appointmentTime.split(':').map(Number);
                           const end = new Date();
-                          end.setHours(h, m + selectedService.duration_minutes);
+                          end.setHours(h, m + totalDurationMinutes);
                           return end.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
                         })()}
                       </strong>
@@ -650,7 +789,7 @@ export function NewBookingPage() {
             </section>
 
             {/* ── 7. PAYMENT ── */}
-            {selectedService && (
+            {selectedServices.length > 0 && (
               <section className="glass-card p-6 rounded-2xl bg-gradient-to-br from-pink-50 to-orange-50">
                 <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                   <span className="w-7 h-7 rounded-full bg-primary text-white text-sm flex items-center justify-center font-bold">7</span>
@@ -665,8 +804,8 @@ export function NewBookingPage() {
                       className="w-56 h-auto mx-auto"
                     />
                   </div>
-                  <p className="text-xs text-muted-foreground mt-3">PhonePe · Google Pay · Paytm · Any UPI</p>
-                  <p className="text-xs font-bold mt-1">UPI ID: 6376539366-2@ybl</p>
+                  <p className="text-xs text-muted-foreground mt-3">Google Pay · PhonePe · Paytm · Any UPI</p>
+                  <p className="text-xs font-bold mt-1 text-primary">UPI ID: 6376539366@ybl</p>
                 </div>
 
                 <div className="mt-4 space-y-4">
@@ -740,7 +879,7 @@ export function NewBookingPage() {
                 <>
                   <IndianRupee className="w-5 h-5 mr-2" />
                   Submit Booking
-                  {appliedCoupon ? ` (Save ${formatINR(appliedCoupon.discountAmount)})` : selectedService ? ` · Pay ${formatINR(advanceAmount)} Advance` : ''}
+                  {appliedCoupon ? ` (Save ${formatINR(appliedCoupon.discountAmount)})` : selectedServices.length > 0 ? ` · Pay ${formatINR(advanceAmount)} Advance` : ''}
                 </>
               )}
             </Button>
@@ -761,18 +900,42 @@ export function NewBookingPage() {
                 </div>
 
                 <div className="p-5 space-y-3">
-                  {selectedService ? (
+                  {selectedServices.length > 0 ? (
                     <>
                       <div>
-                        <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Service</p>
-                        <p className="font-semibold">{selectedService.name}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-muted-foreground flex items-center gap-1">
-                            <Timer className="w-3 h-3" /> {formatDuration(selectedService.duration_minutes)}
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-xs text-muted-foreground uppercase tracking-wide font-semibold">
+                            Services ({selectedServices.length})
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => setIsServiceModalOpen(true)}
+                            className="text-xs text-primary hover:underline font-semibold"
+                          >
+                            Edit
+                          </button>
+                        </div>
+
+                        <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                          {selectedServices.map((s) => (
+                            <div key={s.id} className="flex justify-between items-center text-xs">
+                              <span className="text-foreground/90 truncate pr-2 flex-1" title={s.name}>
+                                {s.name}
+                              </span>
+                              <span className="font-semibold text-foreground flex-shrink-0">
+                                {formatINR(s.price_inr)}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="flex items-center justify-between pt-2 mt-2 border-t text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <Timer className="w-3.5 h-3.5" /> Total Duration
                           </span>
-                          {selectedService.is_premium && (
-                            <span className="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-medium">Premium</span>
-                          )}
+                          <span className="font-semibold text-foreground">
+                            {formatDuration(totalDurationMinutes)}
+                          </span>
                         </div>
                       </div>
 
@@ -803,8 +966,8 @@ export function NewBookingPage() {
 
                       <div className="border-t pt-3 space-y-2 text-sm">
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Service Price</span>
-                          <span className="font-medium">{formatINR(selectedService.price_inr)}</span>
+                          <span className="text-muted-foreground">Services Subtotal</span>
+                          <span className="font-medium">{formatINR(servicesSubtotal)}</span>
                         </div>
                         {homeServiceCharge > 0 && (
                           <div className="flex justify-between text-primary">
@@ -854,11 +1017,38 @@ export function NewBookingPage() {
                           </p>
                         </div>
                       )}
+
+                      {/* Luxe Points Earning Banner */}
+                      <div className="rounded-xl p-3 bg-gradient-to-r from-pink-500/10 via-rose-500/10 to-amber-500/10 border border-pink-200/80 flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2">
+                          <Sparkles className="w-4 h-4 text-primary animate-pulse flex-shrink-0" />
+                          <span className="text-foreground">
+                            You'll earn <strong className="text-primary font-bold">+{Math.max(1, Math.floor(totalPrice / 10))} Luxe Points</strong>!
+                          </span>
+                        </div>
+                        <a
+                          href="/profile"
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-[11px] font-bold text-primary hover:underline whitespace-nowrap ml-2"
+                        >
+                          Club Perks →
+                        </a>
+                      </div>
                     </>
                   ) : (
                     <div className="text-center py-6">
                       <IndianRupee className="w-10 h-10 text-muted-foreground/30 mx-auto mb-2" />
-                      <p className="text-sm text-muted-foreground">Select a service to see pricing</p>
+                      <p className="text-sm text-muted-foreground">Select services to see live pricing</p>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setIsServiceModalOpen(true)}
+                        className="mt-3 text-xs rounded-xl border-primary/40 text-primary"
+                      >
+                        <Plus className="w-3 h-3 mr-1" /> Choose Services
+                      </Button>
                     </div>
                   )}
                 </div>
@@ -877,11 +1067,13 @@ export function NewBookingPage() {
           </div>
 
           {/* MOBILE: Fixed bottom price bar */}
-          {selectedService && (
+          {selectedServices.length > 0 && (
             <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-border shadow-lg px-4 py-3">
               <div className="flex items-center justify-between max-w-lg mx-auto">
                 <div>
-                  <p className="text-xs text-muted-foreground">Total · 50% advance</p>
+                  <p className="text-xs text-muted-foreground">
+                    {selectedServices.length} service{selectedServices.length === 1 ? '' : 's'} · 50% advance
+                  </p>
                   <div className="flex items-center gap-2">
                     {appliedCoupon && (
                       <span className="text-sm line-through text-muted-foreground">{formatINR(baseTotalPrice)}</span>
@@ -906,6 +1098,16 @@ export function NewBookingPage() {
           )}
         </div>
       </div>
+
+      {/* Bulk Multi-Select Services Modal */}
+      <ServiceSelectorModal
+        isOpen={isServiceModalOpen}
+        onClose={() => setIsServiceModalOpen(false)}
+        services={services}
+        selectedServices={selectedServices}
+        onToggleService={handleToggleService}
+        onClearAll={handleClearAllServices}
+      />
     </div>
   );
 }

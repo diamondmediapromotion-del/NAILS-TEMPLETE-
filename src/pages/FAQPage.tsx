@@ -31,7 +31,7 @@ export default function FAQPage() {
     {
       category: 'Booking & Appointments',
       question: 'How do I book an appointment?',
-      answer: 'You can book an appointment through our website by clicking the "Book Now" button, or call us at +91 6376539366. We also accept bookings via WhatsApp.',
+      answer: 'You can book an appointment through our website by clicking the "Book Now" button, or call us at +91 63765 39366. We also accept instant bookings via WhatsApp.',
     },
     {
       category: 'Booking & Appointments',
@@ -71,12 +71,12 @@ export default function FAQPage() {
     {
       category: 'Payment & Offers',
       question: 'What payment methods do you accept?',
-      answer: 'We accept cash, UPI, bank transfer, and all major credit/debit cards. For online bookings, UPI payment screenshot is required for advance payment.',
+      answer: 'We accept UPI (Google Pay / PhonePe / Paytm), Credit/Debit Card, or Pay Cash at Salon / After Home Visit. For online advance payment, use UPI ID 6376539366@ybl and upload your payment screenshot.',
     },
     {
       category: 'Payment & Offers',
       question: 'Do you have any special offers?',
-      answer: 'Yes! We regularly run special offers on combo packages and seasonal services. Follow us on social media or WhatsApp +91 6376539366 for latest offers.',
+      answer: 'Yes! We regularly run special offers on combo packages and seasonal services. Follow us on social media or WhatsApp +91 63765 39366 for the latest offers.',
     },
     {
       category: 'General',

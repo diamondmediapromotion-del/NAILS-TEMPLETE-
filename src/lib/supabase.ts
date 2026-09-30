@@ -44,6 +44,20 @@ export interface Booking {
   coupon_discount?: number | null;
 }
 
+export interface User {
+  id: string;
+  auth_user_id?: string | null;
+  role: 'customer' | 'admin' | 'staff' | 'technician';
+  full_name: string;
+  phone?: string | null;
+  email?: string | null;
+  avatar_url?: string | null;
+  loyalty_points: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Payment {
   id: string;
   booking_id: string;

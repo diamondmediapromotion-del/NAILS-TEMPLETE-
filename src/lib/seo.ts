@@ -7,7 +7,7 @@
 
 export const SITE_URL = 'https://nailsbyuma.onspace.app';
 
-export const SITE_NAME = 'Nails by Uma';
+export const SITE_NAME = 'Nails by Uma - Jaipur';
 
 export const DEFAULT_OG_IMAGE =
   'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=1200&h=630&fit=crop&q=80';

@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2, Sparkles, Calendar, ArrowDown, Award, Star } from 'lucide-react';
 import { useSEO } from '@/hooks/useSEO';
 import { useBreadcrumbSchema } from '@/hooks/useBreadcrumbSchema';
 import { useJsonLd } from '@/hooks/useJsonLd';
@@ -24,32 +24,24 @@ import { absoluteUrl } from '@/lib/seo';
 const INITIAL_VISIBLE = 12;
 const LOAD_MORE_STEP = 12;
 
-/**
- * GalleryPage — composition only.
- *
- * Data comes from useGalleryData (initializeGallery); the filter control,
- * grid and lightbox are separate components. This file just wires them
- * together and owns the small amount of shared state: which category is
- * selected, how many cards are mounted, and which photo is open.
- */
 export default function GalleryPage() {
   const navigate = useNavigate();
+  const galleryGridRef = useRef<HTMLDivElement>(null);
 
   useSEO({
     title: 'Nail Art Gallery | Best Nail Art & Mehndi Designs – Nails by Uma',
     description:
-      'Browse our nail art gallery featuring the best nail art designs, gel nails, acrylic nails, bridal nail packages & mehndi designs. See real work by our expert nail technicians.',
+      'Browse our luxury nail salon portfolio — gel nails, acrylic nail art, mehndi designs & bridal collections, each piece crafted with passion by our expert technicians.',
     keywords:
       'nail art gallery, best nail art, gel nail designs, acrylic nail art, bridal nail art, mehndi designs, luxury nail salon gallery, nail art ideas, nail art near me',
     canonicalPath: '/gallery',
-    // Self-hosted share card (1200×630) — no dependency on a third-party CDN
     ogImage: absoluteUrl('/gallery/og-gallery.jpg'),
   });
 
   // ── BreadcrumbList JSON-LD — Home > Gallery ──────────────────────
   useBreadcrumbSchema();
 
-  // Curated portfolio + staff uploads, merged. Never blocks the first paint.
+  // Curated portfolio + staff uploads, merged.
   const { items, loading } = useGalleryData();
 
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -68,7 +60,7 @@ export default function GalleryPage() {
   const visible = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount]);
   const remaining = filtered.length - visible.length;
 
-  // ── ImageGallery JSON-LD — helps the portfolio surface in Google Images ──
+  // ── ImageGallery JSON-LD ──
   useJsonLd(items.length ? buildGallerySchema(items) : null, 'gallery-page');
 
   /** Reset paging + close the viewer whenever the filter changes. */
@@ -80,6 +72,12 @@ export default function GalleryPage() {
   const openLightbox = useCallback((index: number) => setLightboxIndex(index), []);
   const closeLightbox = useCallback(() => setLightboxIndex(null), []);
   const loadMore = useCallback(() => setVisibleCount((c) => c + LOAD_MORE_STEP), []);
+
+  const scrollToGalleryGrid = () => {
+    if (galleryGridRef.current) {
+      galleryGridRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   const showNext = useCallback(() => {
     setLightboxIndex((current) =>
@@ -95,10 +93,6 @@ export default function GalleryPage() {
 
   const lightboxItem = lightboxIndex === null ? null : filtered[lightboxIndex] ?? null;
 
-  /**
-   * One keydown listener for the whole page, attached only while the viewer
-   * is open and removed on close — no duplicate or leaked listeners.
-   */
   useEffect(() => {
     if (lightboxIndex === null) return;
 
@@ -112,7 +106,6 @@ export default function GalleryPage() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [lightboxIndex, closeLightbox, showNext, showPrevious]);
 
-  /** Stop the page behind the viewer from scrolling. */
   useEffect(() => {
     if (lightboxIndex === null) return;
 
@@ -126,45 +119,100 @@ export default function GalleryPage() {
   const categoryLabel = selectedCategory === 'all' ? '' : `${getCategoryLabel(selectedCategory)} `;
 
   return (
-    /* overflow-x-hidden: belt-and-braces guarantee that nothing in the
-       gallery can ever produce a horizontal page scroll on small screens. */
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 overflow-x-hidden">
-      {/* Hero — H1 is the primary page heading.
-          Mobile is laid out on its own terms rather than as shrunken
-          desktop: tighter vertical rhythm, a heading that fits a 320px
-          viewport, and body copy that stays readable. */}
-      <div className="py-12 sm:py-16 md:py-20 px-4 text-center">
-        <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-semibold mb-4 sm:mb-6" aria-hidden="true">
-          <Sparkles className="w-4 h-4" />
-          Nail Art Gallery
+      {/* ── HIGH-IMPACT HERO SECTION ─────────────────────────────────── */}
+      <section className="relative min-h-[65vh] sm:min-h-[72vh] flex flex-col justify-center items-center overflow-hidden py-16 sm:py-24 px-4 border-b">
+        {/* Background Video & Fallback Image Layer */}
+        <div className="absolute inset-0 z-0 overflow-hidden bg-black">
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            poster="/src/assets/images/rose_gold_glow_spa_1790700271370.jpg"
+            className="w-full h-full object-cover object-center scale-105 opacity-75"
+          >
+            <source
+              src="https://assets.mixkit.co/videos/preview/mixkit-woman-getting-a-manicure-at-a-nail-salon-43407-large.mp4"
+              type="video/mp4"
+            />
+          </video>
+          <img
+            src="/src/assets/images/rose_gold_glow_spa_1790700271370.jpg"
+            alt="Nails by Uma Luxury Salon Portfolio"
+            className="absolute inset-0 w-full h-full object-cover object-center scale-105 pointer-events-none opacity-40 animate-pulse-slow"
+            referrerPolicy="no-referrer"
+          />
         </div>
-        {/* H1 — Primary page heading for the Gallery page */}
-        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-3 sm:mb-4 text-balance">
-          Best Nail Art &amp;{' '}
-          <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Design Gallery
-          </span>
-        </h1>
-        {/* Page description / sub-heading */}
-        <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-          Explore our luxury nail salon portfolio — gel nails, acrylic nail art, mehndi designs &amp; bridal collections, each piece crafted with passion by our expert technicians
-        </p>
-      </div>
 
-      {/* pb clears the floating WhatsApp button (fixed, ~80px tall incl.
-          offset) so it never sits on top of the last row or the CTA. */}
-      <div className="container mx-auto max-w-7xl px-4 pb-28 sm:pb-24">
-        {/* Main gallery container — frosted glass panel (.glass-panel in
-            index.css, with a solid-background fallback where backdrop-filter
-            is unsupported). The blur applies to this layer only, never to the
-            photographs inside it. */}
-        <section className="glass-panel rounded-2xl sm:rounded-3xl p-3 sm:p-6 lg:p-10">
+        {/* Layered Dark Gradient Overlays for High Contrast Readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/85 via-black/70 to-black/90 z-0 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-pink-950/45 via-transparent to-amber-950/35 z-0 pointer-events-none" />
+
+        {/* Hero Content Container */}
+        <div className="relative z-10 container mx-auto max-w-5xl text-center space-y-6 sm:space-y-8 my-auto pt-4">
+          {/* Top Badge */}
+          <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-md border border-white/25 px-4 py-2 rounded-full shadow-lg text-xs sm:text-sm font-semibold text-white tracking-wide">
+            <Sparkles className="w-4 h-4 text-pink-300" aria-hidden="true" />
+            <span>✨ Nail Art Gallery</span>
+          </div>
+
+          {/* Main Headline */}
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white drop-shadow-xl leading-tight">
+            Best Nail Art &amp;{' '}
+            <span className="bg-gradient-to-r from-pink-300 via-rose-200 to-amber-200 bg-clip-text text-transparent">
+              Design Gallery
+            </span>
+          </h1>
+
+          {/* Subheading */}
+          <p className="text-base sm:text-lg md:text-xl text-white/95 max-w-3xl mx-auto leading-relaxed drop-shadow-md font-light">
+            Explore our luxury nail salon portfolio — gel nails, acrylic nail art, mehndi designs &amp; bridal collections, each piece crafted with passion by our expert technicians.
+          </p>
+
+          {/* Call-to-Action (CTA) Buttons */}
+          <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
+            <Button
+              size="lg"
+              onClick={() => navigate('/book')}
+              className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white shadow-xl h-14 px-8 text-base font-bold rounded-xl transition-all hover:scale-105 hover:shadow-2xl"
+            >
+              <Calendar className="w-5 h-5 mr-2" />
+              Book Appointment
+            </Button>
+
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={scrollToGalleryGrid}
+              className="border-2 border-white/60 bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 hover:text-white h-14 px-8 text-base font-semibold rounded-xl transition-all"
+            >
+              <ArrowDown className="w-5 h-5 mr-2 animate-bounce" />
+              Explore Designs
+            </Button>
+          </div>
+
+          {/* Quick Trust Badges */}
+          <div className="flex flex-wrap items-center justify-center gap-6 pt-2 text-xs sm:text-sm text-white/85 font-medium">
+            <span className="flex items-center gap-1.5"><Sparkles className="w-4 h-4 text-pink-300" /> 100% Real Salon Work</span>
+            <span className="flex items-center gap-1.5"><Award className="w-4 h-4 text-amber-300" /> Trained Technicians</span>
+            <span className="flex items-center gap-1.5"><Star className="w-4 h-4 text-yellow-300 fill-yellow-300" /> 4.9★ Rated Salon</span>
+          </div>
+        </div>
+
+        {/* Quick Category Filter Bar Container — Integrated directly inside/below the Hero Card */}
+        <div ref={galleryGridRef} className="relative z-10 w-full container mx-auto max-w-6xl mt-10 pt-4 border-t border-white/15">
           <GalleryFilters
             counts={counts}
             selected={selectedCategory}
             onSelect={setSelectedCategory}
           />
+        </div>
+      </section>
 
+      {/* Main Gallery Container */}
+      <div className="container mx-auto max-w-7xl px-4 pt-8 pb-28 sm:pb-24">
+        <section className="glass-panel rounded-2xl sm:rounded-3xl p-3 sm:p-6 lg:p-10">
           {filtered.length === 0 ? (
             loading ? (
               <div className="flex items-center justify-center py-24">
@@ -180,11 +228,6 @@ export default function GalleryPage() {
             )
           ) : (
             <>
-              {/*
-                Live photo count. Derived from the data on every render — the
-                only place a count is rendered, so it can never drift out of
-                sync. Announced to screen readers when the filter changes.
-              */}
               <p
                 className="mb-5 text-center text-sm text-muted-foreground"
                 aria-live="polite"
@@ -203,7 +246,6 @@ export default function GalleryPage() {
                 onLoadMore={loadMore}
               />
 
-              {/* Quiet hint that staff uploads are still loading */}
               {loading && (
                 <p className="mt-8 text-center text-sm text-muted-foreground flex items-center justify-center gap-2">
                   <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
@@ -214,7 +256,7 @@ export default function GalleryPage() {
           )}
         </section>
 
-        {/* CTA — H2 section heading */}
+        {/* Bottom CTA */}
         <div className="mt-16 sm:mt-20 text-center glass-card p-6 sm:p-12 rounded-2xl">
           <h2 className="text-2xl sm:text-3xl font-bold mb-4">Book Your Nail Art Appointment</h2>
           <p className="text-base sm:text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">

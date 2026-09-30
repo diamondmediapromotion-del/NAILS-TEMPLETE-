@@ -3,7 +3,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { HomePage } from '@/pages/HomePage';
-import { NewBookingPage } from '@/pages/NewBookingPage';
+import { BookingPage } from '@/pages/BookingPage';
 import { BookingStatusPage } from '@/pages/BookingStatusPage';
 import { AdminLoginPage } from '@/pages/AdminLoginPage';
 import { AdminSignupPage } from '@/pages/AdminSignupPage';
@@ -16,7 +16,9 @@ import ContactPage from '@/pages/ContactPage';
 import FAQPage from '@/pages/FAQPage';
 import PackagesPage from '@/pages/PackagesPage';
 import MyBookingsPage from '@/pages/MyBookingsPage';
+import UserProfilePage from '@/pages/UserProfilePage';
 import ServicesPage from '@/pages/ServicesPage';
+import ServiceDetailPage from '@/pages/ServiceDetailPage';
 import { Toaster } from '@/components/ui/toaster';
 import { WhatsAppButton } from '@/components/features/WhatsAppButton';
 
@@ -28,16 +30,19 @@ function App() {
           <Header />
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/book" element={<NewBookingPage />} />
+            <Route path="/book" element={<BookingPage />} />
             <Route path="/booking-status/:bookingId" element={<BookingStatusPage />} />
             <Route path="/reviews" element={<ReviewsPage />} />
             <Route path="/services" element={<ServicesPage />} />
+            <Route path="/services/:serviceId" element={<ServiceDetailPage />} />
             <Route path="/gallery" element={<GalleryPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/faq" element={<FAQPage />} />
             <Route path="/packages" element={<PackagesPage />} />
             <Route path="/my-bookings" element={<MyBookingsPage />} />
+            <Route path="/profile" element={<UserProfilePage />} />
+            <Route path="/loyalty" element={<UserProfilePage />} />
             <Route path="/admin/login" element={<AdminLoginPage />} />
             <Route path="/admin/signup" element={<AdminSignupPage />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />

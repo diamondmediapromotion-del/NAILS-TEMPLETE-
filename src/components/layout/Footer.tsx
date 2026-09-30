@@ -35,14 +35,16 @@ export function Footer() {
           {/* Brand Section */}
           <div>
             <h3 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-3">
-              Nails by Uma
+              Nails by Uma - Jaipur
             </h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Premium Beauty, Nail & Mehndi Services in Rajasthan. 
-              Your beauty, our passion.
+            <p className="text-sm text-muted-foreground mb-3">
+              Best Nail, Beauty & Bridal Mehndi Salon in Mansarovar, Jaipur. 100% Hygienic & Sanitized Tools for your safe self-care.
+            </p>
+            <p className="text-xs text-muted-foreground mb-3">
+              📍 Main Market Road, Near City Center Plaza, Mansarovar, Jaipur, Rajasthan 302020 (Opposite Gold Souk Boulevard, Near Metro Station)
             </p>
             <p className="text-xs text-muted-foreground flex items-center gap-1">
-              Made with <Heart className="w-3 h-3 fill-red-500 text-red-500" /> for beautiful you
+              Made with <Heart className="w-3 h-3 fill-red-500 text-red-500" /> by Uma Sharma
             </p>
           </div>
 
@@ -116,17 +118,17 @@ export function Footer() {
             <ul className="space-y-2 text-sm text-muted-foreground mb-4">
               <li>
                 <a href="tel:+916376539366" className="hover:text-foreground transition-colors">
-                  📞 +91 6376539366
+                  📞 +91 63765 39366
                 </a>
               </li>
               <li>
                 <a href="https://wa.me/916376539366" className="hover:text-foreground transition-colors">
-                  💬 WhatsApp Us
+                  💬 WhatsApp Us (+91 63765 39366)
                 </a>
               </li>
               <li>
-                <a href="mailto:diamonmediapromotion@gmail.com" className="hover:text-foreground transition-colors text-xs">
-                  ✉️ Email Us
+                <a href="mailto:info@nailsbyuma.in" className="hover:text-foreground transition-colors text-xs">
+                  ✉️ info@nailsbyuma.in
                 </a>
               </li>
             </ul>

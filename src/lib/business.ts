@@ -22,25 +22,28 @@ export interface OpeningHours {
 }
 
 export const SALON = {
-  name: SITE_NAME,
-  alternateNames: ['LuxeNails by Uma', 'LuxeNails'],
+  name: 'Nails by Uma - Jaipur',
+  alternateNames: ['Nails by Uma Jaipur', 'Nails by Uma Salon'],
   description:
-    'Luxury nail salon offering professional manicure, pedicure, gel nails, nail art, mehndi and bridal beauty packages. In-salon and home service available.',
+    'Best nail salon in Mansarovar Jaipur offering manicure, pedicure, gel nails, nail art, bridal mehndi and beauty packages. In-salon and home service available in Jaipur.',
   url: SITE_URL,
   logo: `${SITE_URL}/favicon.ico`,
   image: DEFAULT_OG_IMAGE,
   telephone: '+916376539366',
-  email: 'contact@nailsbyuma.com',
+  email: 'info@nailsbyuma.in',
   priceRange: '₹₹',
   currenciesAccepted: 'INR',
-  paymentAccepted: 'Cash, UPI',
-  /** Stated on the About page: "Founded in 2014". */
-  foundingDate: '2014',
+  paymentAccepted: 'UPI (Google Pay / PhonePe / Paytm), Credit/Debit Card, Cash',
+  upiId: '6376539366@ybl',
   address: {
-    region: 'Rajasthan',
-    country: 'IN',
+    streetAddress: 'Main Market Road, Near City Center Plaza, Mansarovar',
+    addressLocality: 'Jaipur',
+    addressRegion: 'Rajasthan',
+    postalCode: '302020',
+    addressCountry: 'IN',
+    landmark: 'Opposite Gold Souk Boulevard, Near Mansarovar Metro Station, Jaipur',
   },
-  areaServed: 'Rajasthan',
+  areaServed: 'Jaipur, Rajasthan',
   rating: {
     value: '4.9',
     count: '500',

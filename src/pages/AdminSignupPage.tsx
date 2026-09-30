@@ -94,11 +94,11 @@ export function AdminSignupPage() {
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Card */}
-        <div className="bg-white rounded-2xl shadow-2xl p-8 border border-pink-100">
+        <div className="group bg-white/75 backdrop-blur-xl border border-white/60 rounded-3xl shadow-glass p-8 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-white/90">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mx-auto mb-4">
-              <UserPlus className="w-8 h-8 text-white" />
+            <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mx-auto mb-4 shadow-soft transition-all duration-300 group-hover:scale-105 group-hover:shadow-md cursor-pointer">
+              <UserPlus className="w-8 h-8 text-white transition-transform duration-300 group-hover:scale-105" />
             </div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               Create Admin Account
