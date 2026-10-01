@@ -380,6 +380,9 @@ const mockTables: Record<string, any[]> = {
   home_service_charges: getStoredTable('home_service_charges', INITIAL_HOME_SERVICE_CHARGES),
   whatsapp_leads: getStoredTable('whatsapp_leads', []),
   gallery_images: getStoredTable('gallery_images', []),
+  tenants: getStoredTable('tenants', []),
+  profiles: getStoredTable('profiles', []),
+  websites: getStoredTable('websites', []),
   categories: getStoredTable('categories', [
     { id: 'basic', name: 'Basic Nails', is_active: true },
     { id: 'premium', name: 'Premium Nails', is_active: true },
@@ -389,8 +392,57 @@ const mockTables: Record<string, any[]> = {
   ]),
 };
 
+function getSupabaseActiveTenantId(): string {
+  if (typeof window === 'undefined') return 'nailsbyuma';
+
+  // 1. Path-based /site/{slug} fallback
+  const pathname = window.location.pathname;
+  if (pathname.startsWith('/site/')) {
+    const slug = pathname.split('/site/')[1]?.split('/')[0];
+    if (slug) {
+      const cleanSlug = slug.toLowerCase();
+      localStorage.setItem('current_tenant_preview', cleanSlug);
+      return cleanSlug;
+    }
+  }
+
+  // 2. Subdomains (e.g. royalbeauty.localhost or royalbeauty.platform.com)
+  const hostname = window.location.hostname;
+  const parts = hostname.split('.');
+  if (parts.length > 1) {
+    const subdomain = parts[0].toLowerCase();
+    const reservedWords = ['localhost', 'ais-dev', 'ais-pre', 'www', 'platform', 'app', 'admin', 'api'];
+    if (!reservedWords.includes(subdomain) && !subdomain.startsWith('127') && !subdomain.startsWith('192')) {
+      return subdomain;
+    }
+  }
+
+  // 3. Query Parameter (e.g. ?tenant=royalbeauty)
+  const params = new URLSearchParams(window.location.search);
+  const queryTenant = params.get('tenant');
+  if (queryTenant) return queryTenant.toLowerCase();
+
+  // 4. LocalStorage Preview cookie
+  const previewTenant = localStorage.getItem('current_tenant_preview');
+  if (previewTenant) return previewTenant.toLowerCase();
+
+  return 'nailsbyuma';
+}
+
 function createMockQueryBuilder(tableName: string) {
-  let tableData = [...(mockTables[tableName] || [])];
+  const activeTenantId = getSupabaseActiveTenantId();
+  let rawData = [...(mockTables[tableName] || [])];
+
+  // Auto-isolate multi-tenant tables
+  const isolatedTables = ['services', 'bookings', 'customer_reviews', 'reviews', 'payments', 'gallery_images', 'whatsapp_leads', 'packages', 'promotions'];
+  if (isolatedTables.includes(tableName)) {
+    rawData = rawData.filter((row) => {
+      const rowTenant = row.tenant_id || 'nailsbyuma';
+      return rowTenant === activeTenantId;
+    });
+  }
+
+  let tableData = rawData;
   let isSingle = false;
 
   const builder: any = {
@@ -429,6 +481,7 @@ function createMockQueryBuilder(tableName: string) {
       const rows = Array.isArray(rowOrRows) ? rowOrRows : [rowOrRows];
       const inserted = rows.map((r) => ({
         id: r.id || `mock_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+        tenant_id: r.tenant_id || activeTenantId,
         created_at: r.created_at || new Date().toISOString(),
         updated_at: new Date().toISOString(),
         ...r,
@@ -442,7 +495,7 @@ function createMockQueryBuilder(tableName: string) {
       mockTables[tableName] = (mockTables[tableName] || []).map((row) => {
         const matches = tableData.some((t) => t.id === row.id);
         if (matches) {
-          return { ...row, ...updates, updated_at: new Date().toISOString() };
+          return { ...row, ...updates, tenant_id: row.tenant_id || activeTenantId, updated_at: new Date().toISOString() };
         }
         return row;
       });

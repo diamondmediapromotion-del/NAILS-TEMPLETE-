@@ -22,6 +22,7 @@ import {
   Share2,
   Download,
   AlertCircle,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,6 +30,8 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useSEO } from '@/hooks/useSEO';
 import { useBreadcrumbSchema } from '@/hooks/useBreadcrumbSchema';
+import { useTenant } from '@/contexts/TenantContext';
+import { supabase } from '@/lib/supabase';
 import { INITIAL_SERVICES_DATA } from '@/services/dbService';
 
 interface ServiceItem {
@@ -125,7 +128,12 @@ const TIME_SLOTS = [
 export function BookingPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { tenant } = useTenant();
   const { toast } = useToast();
+
+  // Inspiration Photo Upload State
+  const [inspirationPhotoUrl, setInspirationPhotoUrl] = useState<string>('');
+  const [uploadingPhoto, setUploadingPhoto] = useState<boolean>(false);
 
   useSEO({
     title: 'Book Appointment Online | Luxury Nail & Beauty Spa – Nails by Uma Jaipur',
@@ -136,6 +144,65 @@ export function BookingPage() {
   });
 
   useBreadcrumbSchema();
+
+  const handleInspirationPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Size limit verification: 5MB
+    const MAX_SIZE_MB = 5;
+    if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+      toast({
+        title: 'Inspiration Image too large',
+        description: `Please select a reference image smaller than ${MAX_SIZE_MB}MB.`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const ALLOWED_FORMATS = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+    if (!ALLOWED_FORMATS.includes(file.type)) {
+      toast({
+        title: 'Unsupported Image Format',
+        description: 'Please upload an image formatted as PNG, JPEG, JPG, or WEBP.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setUploadingPhoto(true);
+    try {
+      const fileExt = file.name.split('.').pop() || 'png';
+      const cleanFileName = `${Date.now()}_inspiration.${fileExt}`;
+      const filePath = `websites/${tenant.id}/appointments/${cleanFileName}`;
+
+      const { data, error } = await supabase.storage.from('salon-templates').upload(filePath, file, {
+        upsert: true,
+      });
+
+      let publicUrl = '';
+      if (error) {
+        publicUrl = URL.createObjectURL(file);
+      } else {
+        const { data: urlData } = supabase.storage.from('salon-templates').getPublicUrl(filePath);
+        publicUrl = urlData.publicUrl;
+      }
+
+      setInspirationPhotoUrl(publicUrl);
+      toast({
+        title: 'Design Photo Loaded! 📸',
+        description: 'Your reference inspiration image is uploaded successfully.',
+      });
+    } catch {
+      toast({
+        title: 'Upload Failed',
+        description: 'There was an issue processing your image upload. A temporary fallback was loaded.',
+        variant: 'destructive',
+      });
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
 
   // Multi-Step State (1 to 6)
   const [currentStep, setCurrentStep] = useState<number>(1);
@@ -285,6 +352,8 @@ export function BookingPage() {
         price: finalPrice,
         depositPaid: advanceDeposit,
         status: 'Confirmed',
+        service_photo_url: inspirationPhotoUrl || undefined,
+        image_url: inspirationPhotoUrl || undefined,
         createdAt: new Date().toISOString(),
       };
 
@@ -298,6 +367,7 @@ export function BookingPage() {
 
       setIsSubmitting(false);
       setIsSuccess(true);
+      setInspirationPhotoUrl(''); // Reset
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
       toast({
@@ -807,6 +877,48 @@ export function BookingPage() {
                         onChange={(e) => setSpecialNotes(e.target.value)}
                         className="h-11 rounded-xl border-pink-200 text-sm bg-white"
                       />
+                    </div>
+
+                    {/* ── DRAG-AND-DROP SERVICE INSPIRATION PHOTO UPLOAD AREA ── */}
+                    <div className="space-y-2 pt-2">
+                      <Label className="text-xs font-semibold text-slate-700 block">
+                        Service Inspiration Photo / Reference Design (Optional)
+                      </Label>
+
+                      {inspirationPhotoUrl ? (
+                        <div className="relative rounded-2xl overflow-hidden border border-pink-100 h-32 flex items-center justify-center bg-pink-50/20 shadow-xs">
+                          <img src={inspirationPhotoUrl} alt="Inspiration Preview" className="w-full h-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => setInspirationPhotoUrl('')}
+                            className="absolute top-2.5 right-2.5 bg-slate-950/80 text-white rounded-xl px-3 py-1 hover:bg-slate-950 transition-colors text-[10px] font-bold shadow-md"
+                          >
+                            Change Photo
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="border-2 border-dashed border-pink-200/60 hover:border-pink-500 rounded-2xl p-5 text-center cursor-pointer bg-white relative transition-all duration-300 flex flex-col items-center justify-center shadow-xs">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleInspirationPhotoUpload}
+                            className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                            disabled={uploadingPhoto}
+                          />
+                          {uploadingPhoto ? (
+                            <div className="flex flex-col items-center justify-center space-y-1.5">
+                              <span className="w-6 h-6 rounded-full border-2 border-pink-100 border-t-pink-600 animate-spin block" />
+                              <span className="text-xs text-slate-500 font-medium">Uploading reference design...</span>
+                            </div>
+                          ) : (
+                            <>
+                              <ImageIcon className="w-7 h-7 text-pink-400 mb-1.5" />
+                              <span className="text-xs font-bold text-slate-800 block">Drag &amp; Drop or Click to Upload</span>
+                              <span className="text-[10px] text-slate-400 mt-0.5">Supports PNG, JPG, JPEG, WEBP up to 5MB</span>
+                            </>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 )}

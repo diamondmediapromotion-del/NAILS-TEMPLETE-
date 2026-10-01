@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, DEMO_ROLES } from '@/contexts/AuthContext';
+import { useTenant } from '@/contexts/TenantContext';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +12,7 @@ import { PromotionsManagementSection } from '@/components/features/PromotionsMan
 import { ReviewIncentiveAdminSection } from '@/components/features/ReviewIncentiveAdminSection';
 import { PackagesManagementSection } from '@/components/features/PackagesManagementSection';
 import { GalleryManagementSection } from '@/components/features/GalleryManagementSection';
+import { TenantCustomizer } from '@/components/features/TenantCustomizer';
 import {
   Booking,
   WaitlistEntry,
@@ -76,16 +78,22 @@ type AdminTab =
   | 'promotions'
   | 'gallery'
   | 'reviews'
-  | 'settings';
+  | 'settings'
+  | 'template';
 
 export function AdminDashboard() {
   const navigate = useNavigate();
   const { user, demoUser, role, selectedBranch, signOut, loginAsDemoRole, setSelectedBranch } =
     useAuth();
+  const { tenant } = useTenant();
   const { toast } = useToast();
 
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
   const [loading, setLoading] = useState(false);
+
+  // New Booking photo states
+  const [newBPhotoUrl, setNewBPhotoUrl] = useState('');
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   // Core State
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -158,6 +166,13 @@ export function AdminDashboard() {
   // Initialize Initial Persistent State
   useEffect(() => {
     loadAllData();
+    
+    // Check if redirecting from signup onboarding to editor customizer
+    const params = new URLSearchParams(window.location.search);
+    const tabParam = params.get('tab');
+    if (tabParam === 'template') {
+      setActiveTab('template');
+    }
   }, []);
 
   const loadAllData = async () => {
@@ -502,6 +517,65 @@ export function AdminDashboard() {
     }
   };
 
+  const handleBookingPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validation
+    const MAX_SIZE_MB = 5;
+    if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+      toast({
+        title: 'File too large',
+        description: `Maximum allowed size is ${MAX_SIZE_MB}MB.`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const ALLOWED_FORMATS = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+    if (!ALLOWED_FORMATS.includes(file.type)) {
+      toast({
+        title: 'Invalid Format',
+        description: 'Supported formats are PNG, JPEG, JPG, and WEBP.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setUploadingPhoto(true);
+    try {
+      const fileExt = file.name.split('.').pop() || 'png';
+      const safeName = `${Date.now()}_inspiration.${fileExt}`;
+      const filePath = `websites/${tenant.id}/appointments/${safeName}`;
+
+      const { data, error } = await supabase.storage.from('salon-templates').upload(filePath, file, {
+        upsert: true,
+      });
+
+      let publicUrl = '';
+      if (error) {
+        publicUrl = URL.createObjectURL(file);
+      } else {
+        const { data: urlData } = supabase.storage.from('salon-templates').getPublicUrl(filePath);
+        publicUrl = urlData.publicUrl;
+      }
+
+      setNewBPhotoUrl(publicUrl);
+      toast({
+        title: 'Reference Photo Uploaded!',
+        description: 'Inspiration image loaded successfully.',
+      });
+    } catch {
+      toast({
+        title: 'Upload failed',
+        description: 'Failed to upload photo. Fallback set.',
+        variant: 'destructive',
+      });
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
   // Create New Appointment with Overlap Guard
   const handleCreateBookingSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -543,6 +617,8 @@ export function AdminDashboard() {
       technician_name: newBTechnician,
       payment_method: 'upi',
       notes: newBNotes,
+      service_photo_url: newBPhotoUrl || undefined,
+      image_url: newBPhotoUrl || undefined,
       created_at: new Date().toISOString(),
     };
 
@@ -559,6 +635,7 @@ export function AdminDashboard() {
     setNewBCustomerPhone('');
     setNewBCustomerEmail('');
     setNewBNotes('');
+    setNewBPhotoUrl('');
   };
 
   // Create Waitlist Entry
@@ -869,6 +946,18 @@ export function AdminDashboard() {
               >
                 <Settings className="w-4 h-4" />
                 <span>Studio Settings</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('template')}
+                className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  activeTab === 'template'
+                    ? 'bg-pink-600 text-white shadow-sm'
+                    : 'text-slate-700 dark:text-slate-300 hover:bg-pink-50 dark:hover:bg-slate-800'
+                }`}
+              >
+                <Sparkles className="w-4 h-4 text-amber-500 animate-pulse" />
+                <span>Customizer &amp; Subdomains</span>
               </button>
             </div>
           </aside>
@@ -1427,6 +1516,8 @@ export function AdminDashboard() {
                 </div>
               </div>
             )}
+
+            {activeTab === 'template' && <TenantCustomizer />}
           </main>
         </div>
       </div>
@@ -1440,7 +1531,7 @@ export function AdminDashboard() {
                 Create New Salon Appointment
               </h3>
               <button
-                onClick={() => setIsNewBookingModalOpen(false)}
+                onClick={() => { setIsNewBookingModalOpen(false); setNewBPhotoUrl(''); }}
                 className="text-slate-400 hover:text-slate-700"
               >
                 <X className="w-5 h-5" />
@@ -1502,20 +1593,62 @@ export function AdminDashboard() {
                 </div>
               </div>
 
+              {/* ── SERVICE PHOTO INSPIRATION UPLOAD ── */}
+              <div className="space-y-1.5 pt-1">
+                <Label className="text-xs font-bold block">Upload Service Photo / Inspiration Image</Label>
+                
+                {newBPhotoUrl ? (
+                  <div className="relative rounded-2xl overflow-hidden border border-pink-100 h-28 flex items-center justify-center bg-pink-50/20">
+                    <img src={newBPhotoUrl} alt="Inspiration Preview" className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setNewBPhotoUrl('')}
+                      className="absolute top-2 right-2 bg-slate-900/80 text-white rounded-full px-2 py-0.5 hover:bg-slate-900 transition-colors text-[10px] font-bold"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <div className="border-2 border-dashed border-slate-200 hover:border-pink-300 rounded-2xl p-4 text-center cursor-pointer bg-slate-50/50 relative transition-colors flex flex-col items-center justify-center">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleBookingPhotoUpload}
+                      className="absolute inset-0 opacity-0 cursor-pointer"
+                      disabled={uploadingPhoto}
+                    />
+                    {uploadingPhoto ? (
+                      <div className="flex flex-col items-center justify-center space-y-1">
+                        <Loader2 className="w-5 h-5 text-pink-500 animate-spin" />
+                        <span className="text-[10px] text-slate-500">Uploading inspiration image...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <ImageIcon className="w-6 h-6 text-slate-400 mb-1" />
+                        <span className="text-[11px] font-bold text-slate-700 block">Click or Drag Reference Image</span>
+                        <span className="text-[9px] text-slate-400">PNG, JPG, JPEG, WEBP up to 5MB</span>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+
               <div className="flex justify-end gap-2 pt-3 border-t">
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => setIsNewBookingModalOpen(false)}
+                  onClick={() => { setIsNewBookingModalOpen(false); setNewBPhotoUrl(''); }}
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
                   size="sm"
-                  className="bg-pink-600 text-white font-bold rounded-xl"
+                  disabled={uploadingPhoto}
+                  className="bg-pink-600 text-white font-bold rounded-xl flex items-center gap-1.5"
                 >
+                  {uploadingPhoto && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   Schedule Appointment
                 </Button>
               </div>

@@ -38,6 +38,8 @@ export interface Booking {
   payment_method?: 'upi' | 'cash' | 'card';
   notes?: string;
   address?: string;
+  service_photo_url?: string;
+  image_url?: string;
   created_at?: string;
   updated_at?: string;
 }

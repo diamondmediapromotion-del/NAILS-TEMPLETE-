@@ -11,16 +11,24 @@ export interface DemoUser {
   branch: string;
 }
 
+export type UserRole = 'customer' | 'shop_owner' | 'admin' | 'owner' | 'manager' | 'receptionist';
+
 interface AuthContextType {
   user: User | DemoUser | null;
   demoUser: DemoUser | null;
-  role: 'owner' | 'manager' | 'receptionist';
+  profile: any | null;
+  role: UserRole;
   selectedBranch: 'all' | 'mansarovar' | 'doorstep';
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
+  isAuthenticated: boolean;
+  isCustomer: boolean;
+  isShopOwner: boolean;
+  isAdmin: boolean;
+  signIn: (email: string, password: string) => Promise<any>;
   signOut: () => Promise<void>;
   loginAsDemoRole: (role: 'owner' | 'manager' | 'receptionist') => void;
   setSelectedBranch: (branch: 'all' | 'mansarovar' | 'doorstep') => void;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -55,9 +63,38 @@ export const DEMO_ROLES: Record<'owner' | 'manager' | 'receptionist', DemoUser> 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | DemoUser | null>(null);
   const [demoUser, setDemoUser] = useState<DemoUser | null>(null);
-  const [role, setRole] = useState<'owner' | 'manager' | 'receptionist'>('owner');
+  const [profile, setProfile] = useState<any | null>(null);
+  const [role, setRole] = useState<UserRole>('customer');
   const [selectedBranch, setSelectedBranch] = useState<'all' | 'mansarovar' | 'doorstep'>('all');
   const [loading, setLoading] = useState(true);
+
+  const fetchProfileForUser = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (data) {
+        setProfile(data);
+        setRole(data.role || 'customer');
+      } else {
+        // Safe profile setup state instead of crashing
+        setProfile({ user_id: userId, role: 'customer' });
+        setRole('customer');
+      }
+    } catch (err) {
+      console.error('Failed to load profile:', err);
+      setRole('customer');
+    }
+  };
+
+  const refreshProfile = async () => {
+    if (user && 'id' in user && !demoUser) {
+      await fetchProfileForUser(user.id);
+    }
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -69,6 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const parsed = JSON.parse(savedDemoUser) as DemoUser;
         setDemoUser(parsed);
         setUser(parsed);
+        setProfile(null);
         setRole(parsed.role || 'owner');
         setLoading(false);
       } catch (err) {
@@ -82,32 +120,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (session?.user) {
           setUser(session.user);
           setDemoUser(null);
-        } else if (!savedDemoUser) {
-          setUser(null);
+          fetchProfileForUser(session.user.id).finally(() => {
+            if (mounted) setLoading(false);
+          });
+        } else {
+          if (!savedDemoUser) {
+            setUser(null);
+            setProfile(null);
+          }
+          setLoading(false);
         }
-        setLoading(false);
       }
     });
 
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
 
       if (event === 'SIGNED_IN' && session?.user) {
         setUser(session.user);
         setDemoUser(null);
         localStorage.removeItem('aura_demo_user');
-        setLoading(false);
+        setLoading(true);
+        await fetchProfileForUser(session.user.id);
+        if (mounted) setLoading(false);
       } else if (event === 'SIGNED_OUT') {
         if (!localStorage.getItem('aura_demo_user')) {
           setUser(null);
           setDemoUser(null);
+          setProfile(null);
+          setRole('customer');
         }
-        setLoading(false);
+        if (mounted) setLoading(false);
       } else if (event === 'TOKEN_REFRESHED' && session?.user) {
         setUser(session.user);
+        await fetchProfileForUser(session.user.id);
       }
     });
 
@@ -121,13 +170,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const demo = DEMO_ROLES[roleType];
     setDemoUser(demo);
     setUser(demo);
+    setProfile(null);
     setRole(roleType);
     localStorage.setItem('aura_demo_user', JSON.stringify(demo));
     setLoading(false);
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -147,12 +197,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       throw error;
     }
+    return data;
   };
 
   const signOut = async () => {
     localStorage.removeItem('aura_demo_user');
     setDemoUser(null);
     setUser(null);
+    setProfile(null);
+    setRole('customer');
     try {
       await supabase.auth.signOut();
     } catch (err) {
@@ -160,18 +213,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const isAuthenticated = !!user;
+  const isCustomer = role === 'customer';
+  const isShopOwner = role === 'shop_owner' || role === 'owner' || role === 'manager' || role === 'receptionist';
+  const isAdmin = role === 'admin';
+
   return (
     <AuthContext.Provider
       value={{
         user,
         demoUser,
+        profile,
         role,
         selectedBranch,
         loading,
+        isAuthenticated,
+        isCustomer,
+        isShopOwner,
+        isAdmin,
         signIn,
         signOut,
         loginAsDemoRole,
         setSelectedBranch,
+        refreshProfile,
       }}
     >
       {children}
