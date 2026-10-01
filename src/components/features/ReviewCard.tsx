@@ -29,7 +29,7 @@ export function ReviewCard({
   };
 
   return (
-    <div className={`glass-card p-6 rounded-2xl hover:shadow-lg transition-shadow ${className}`}>
+    <div className={`glass-card p-7 rounded-3xl border border-white/80 dark:border-white/10 bg-white/75 dark:bg-slate-900/75 backdrop-blur-xl transition-all duration-400 hover:-translate-y-2 hover:shadow-2xl ${className}`}>
       <div className="flex items-start gap-4 h-full">
         {/* Customer Photo or Avatar */}
         <div className="flex-shrink-0">

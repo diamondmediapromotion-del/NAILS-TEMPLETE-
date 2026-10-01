@@ -545,57 +545,57 @@ export function MyBookingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 relative overflow-hidden">
-      {/* Background Glows */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-pink-600/20 via-rose-500/10 to-transparent blur-3xl pointer-events-none" />
-      <div className="absolute top-1/3 left-0 w-[400px] h-[400px] bg-gradient-to-tr from-amber-500/15 via-pink-500/10 to-transparent blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-gradient-to-b from-rose-50/70 via-amber-50/30 to-pink-50/50 text-slate-900 relative overflow-hidden">
+      {/* Background Ambient Mesh Glows */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-pink-300/30 via-rose-200/20 to-transparent blur-3xl pointer-events-none" />
+      <div className="absolute top-1/3 left-0 w-[400px] h-[400px] bg-gradient-to-tr from-amber-200/30 via-pink-200/20 to-transparent blur-3xl pointer-events-none" />
 
-      {/* Hero Section with Abstract Rose-Gold Glassmorphism Image */}
-      <section className="relative pt-24 pb-16 px-4 sm:px-6 lg:px-8 border-b border-pink-500/20 overflow-hidden">
+      {/* Hero Section with Light Glassmorphism */}
+      <section className="relative pt-24 pb-16 px-4 sm:px-6 lg:px-8 border-b border-pink-200/50 bg-white/60 backdrop-blur-xl overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
             src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1600&auto=format&fit=crop&q=80"
-            alt="Abstract Rose Gold Glassmorphism Luxury Texture"
-            className="w-full h-full object-cover object-center opacity-30 mix-blend-screen scale-105 transform hover:scale-100 transition-transform duration-1000"
+            alt="Rose Gold Light Glassmorphism Texture"
+            className="w-full h-full object-cover object-center opacity-15 scale-105 transform hover:scale-100 transition-transform duration-1000"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/90 to-slate-950" />
+          <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-rose-50/40 to-white/90" />
         </div>
 
         <div className="container mx-auto max-w-7xl relative z-10">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div>
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-pink-500/20 border border-pink-400/30 text-pink-300 text-xs font-bold uppercase tracking-wider mb-3 backdrop-blur-md">
-                <Crown className="w-3.5 h-3.5 text-amber-400" />
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-pink-100/80 border border-pink-300/60 text-pink-700 text-xs font-bold uppercase tracking-wider mb-3 backdrop-blur-md shadow-xs">
+                <Crown className="w-3.5 h-3.5 text-amber-500" />
                 VIP Client Atelier Portal
               </div>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-white tracking-tight">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-slate-900 tracking-tight">
                 Welcome back,{' '}
-                <span className="bg-gradient-to-r from-pink-400 via-rose-300 to-amber-200 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-pink-600 via-rose-500 to-amber-600 bg-clip-text text-transparent">
                   {profileName}
                 </span>
               </h1>
-              <p className="mt-2 text-sm sm:text-base text-slate-300 max-w-xl">
+              <p className="mt-2 text-sm sm:text-base text-slate-600 max-w-xl">
                 Manage your upcoming appointments, track service history, view your Luxe loyalty points, and re-book your signature beauty experiences.
               </p>
             </div>
 
             {/* Quick Phone Sync Box */}
-            <div className="w-full md:w-auto bg-white/10 backdrop-blur-xl border border-white/20 p-3.5 rounded-2xl shadow-xl">
+            <div className="w-full md:w-auto bg-white/85 backdrop-blur-xl border border-white/90 p-3.5 rounded-2xl shadow-lg shadow-pink-900/5">
               <form onSubmit={handlePhoneSearch} className="flex items-center gap-2">
                 <div className="relative flex-1">
-                  <Phone className="w-4 h-4 text-pink-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <Phone className="w-4 h-4 text-pink-500 absolute left-3 top-1/2 -translate-y-1/2" />
                   <Input
                     type="tel"
                     placeholder="Enter phone number"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="pl-9 pr-3 py-1.5 h-10 bg-slate-900/80 border-pink-500/30 text-white placeholder:text-slate-400 rounded-xl text-xs sm:text-sm focus:ring-pink-500"
+                    className="pl-9 pr-3 py-1.5 h-10 bg-white border-pink-200 text-slate-900 placeholder:text-slate-400 rounded-xl text-xs sm:text-sm focus:ring-pink-500 focus:border-pink-500"
                   />
                 </div>
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-700 hover:to-rose-600 text-white rounded-xl h-10 px-4 text-xs font-bold"
+                  className="bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-700 hover:to-rose-600 text-white rounded-xl h-10 px-4 text-xs font-bold shadow-md shadow-pink-600/20"
                 >
                   {loading ? 'Syncing...' : 'Sync'}
                 </Button>
@@ -605,43 +605,43 @@ export function MyBookingsPage() {
 
           {/* Quick Metrics Ribbon */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
-            <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/15 rounded-2xl p-4 flex items-center gap-3.5">
-              <div className="w-11 h-11 rounded-xl bg-pink-500/20 border border-pink-500/30 flex items-center justify-center text-pink-400">
+            <div className="bg-white/80 backdrop-blur-xl border border-white/90 shadow-md shadow-pink-900/5 rounded-2xl p-4 flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-xl bg-pink-100/80 border border-pink-200 flex items-center justify-center text-pink-600">
                 <CalendarIcon className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-xs text-slate-400 font-medium">Active Bookings</p>
-                <p className="text-xl font-bold text-white">{upcomingBookings.length}</p>
+                <p className="text-xs text-slate-500 font-medium">Active Bookings</p>
+                <p className="text-xl font-bold text-slate-900">{upcomingBookings.length}</p>
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/15 rounded-2xl p-4 flex items-center gap-3.5">
-              <div className="w-11 h-11 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
+            <div className="bg-white/80 backdrop-blur-xl border border-white/90 shadow-md shadow-pink-900/5 rounded-2xl p-4 flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-xl bg-amber-100/80 border border-amber-200 flex items-center justify-center text-amber-600">
                 <Sparkles className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-xs text-slate-400 font-medium">Luxe Points</p>
-                <p className="text-xl font-bold text-amber-300">{luxePoints} pts</p>
+                <p className="text-xs text-slate-500 font-medium">Luxe Points</p>
+                <p className="text-xl font-bold text-amber-700">{luxePoints} pts</p>
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/15 rounded-2xl p-4 flex items-center gap-3.5">
-              <div className="w-11 h-11 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+            <div className="bg-white/80 backdrop-blur-xl border border-white/90 shadow-md shadow-pink-900/5 rounded-2xl p-4 flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-xl bg-emerald-100/80 border border-emerald-200 flex items-center justify-center text-emerald-600">
                 <Award className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-xs text-slate-400 font-medium">VIP Tier</p>
-                <p className="text-xl font-bold text-emerald-300">Gold Prestige</p>
+                <p className="text-xs text-slate-500 font-medium">VIP Tier</p>
+                <p className="text-xl font-bold text-emerald-700">Gold Prestige</p>
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/15 rounded-2xl p-4 flex items-center gap-3.5">
-              <div className="w-11 h-11 rounded-xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-rose-400">
+            <div className="bg-white/80 backdrop-blur-xl border border-white/90 shadow-md shadow-pink-900/5 rounded-2xl p-4 flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-xl bg-rose-100/80 border border-rose-200 flex items-center justify-center text-rose-600">
                 <Gift className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-xs text-slate-400 font-medium">Reward Vouchers</p>
-                <p className="text-xl font-bold text-rose-300">₹200 Available</p>
+                <p className="text-xs text-slate-500 font-medium">Reward Vouchers</p>
+                <p className="text-xl font-bold text-rose-700">₹200 Available</p>
               </div>
             </div>
           </div>
@@ -651,13 +651,13 @@ export function MyBookingsPage() {
       {/* Main Dashboard Workspace */}
       <main className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
         {/* Navigation Tabs */}
-        <div className="flex items-center gap-2 p-1.5 bg-slate-900/80 backdrop-blur-xl border border-pink-500/20 rounded-2xl mb-8 overflow-x-auto">
+        <div className="flex items-center gap-2 p-1.5 bg-white/75 backdrop-blur-xl border border-white/90 shadow-md shadow-pink-900/5 rounded-2xl mb-8 overflow-x-auto">
           <button
             onClick={() => setActiveTab('upcoming')}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${
               activeTab === 'upcoming'
-                ? 'bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-lg'
-                : 'text-slate-400 hover:text-white hover:bg-white/5'
+                ? 'bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-md'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-rose-50/80'
             }`}
           >
             <CalendarCheck className="w-4 h-4" />
@@ -668,8 +668,8 @@ export function MyBookingsPage() {
             onClick={() => setActiveTab('history')}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${
               activeTab === 'history'
-                ? 'bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-lg'
-                : 'text-slate-400 hover:text-white hover:bg-white/5'
+                ? 'bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-md'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-rose-50/80'
             }`}
           >
             <Clock className="w-4 h-4" />
@@ -680,8 +680,8 @@ export function MyBookingsPage() {
             onClick={() => setActiveTab('favorites')}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${
               activeTab === 'favorites'
-                ? 'bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-lg'
-                : 'text-slate-400 hover:text-white hover:bg-white/5'
+                ? 'bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-md'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-rose-50/80'
             }`}
           >
             <Heart className="w-4 h-4" />
@@ -692,11 +692,11 @@ export function MyBookingsPage() {
             onClick={() => setActiveTab('referral')}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${
               activeTab === 'referral'
-                ? 'bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-lg'
-                : 'text-slate-400 hover:text-white hover:bg-white/5'
+                ? 'bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-md'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-rose-50/80'
             }`}
           >
-            <Gift className="w-4 h-4 text-amber-400" />
+            <Gift className="w-4 h-4 text-amber-500" />
             Refer a Friend (Earn ₹300)
           </button>
 
@@ -704,8 +704,8 @@ export function MyBookingsPage() {
             onClick={() => setActiveTab('profile')}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${
               activeTab === 'profile'
-                ? 'bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-lg'
-                : 'text-slate-400 hover:text-white hover:bg-white/5'
+                ? 'bg-gradient-to-r from-pink-600 to-rose-500 text-white shadow-md'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-rose-50/80'
             }`}
           >
             <User className="w-4 h-4" />
@@ -720,23 +720,23 @@ export function MyBookingsPage() {
               <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="relative overflow-hidden bg-gradient-to-br from-pink-950/40 via-slate-900/90 to-slate-900/95 border border-pink-500/30 rounded-3xl p-6 sm:p-8 backdrop-blur-2xl shadow-2xl"
+                className="relative overflow-hidden bg-white/80 backdrop-blur-2xl border border-white/90 shadow-xl shadow-pink-900/5 rounded-3xl p-6 sm:p-8"
               >
-                <div className="absolute top-0 right-0 w-80 h-80 bg-pink-500/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute top-0 right-0 w-80 h-80 bg-pink-200/20 rounded-full blur-3xl pointer-events-none" />
 
-                <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 pb-6 border-b border-pink-500/20">
+                <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 pb-6 border-b border-pink-100">
                   <div>
                     <div className="flex items-center gap-3 mb-2">
-                      <span className="text-xs font-bold text-pink-400 uppercase tracking-widest flex items-center gap-1.5">
+                      <span className="text-xs font-bold text-pink-600 uppercase tracking-widest flex items-center gap-1.5">
                         <Sparkles className="w-3.5 h-3.5" /> Next Scheduled Appointment
                       </span>
                       {getStatusBadge(nextAppointment.status)}
                     </div>
-                    <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white">
+                    <h2 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900">
                       {nextAppointment.service_names.join(' + ')}
                     </h2>
-                    <p className="text-xs sm:text-sm text-slate-300 mt-1">
-                      Booking Reference: <span className="font-mono text-pink-300 font-bold">{nextAppointment.id}</span>
+                    <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                      Booking Reference: <span className="font-mono text-pink-600 font-bold">{nextAppointment.id}</span>
                     </p>
                   </div>
 
@@ -747,15 +747,15 @@ export function MyBookingsPage() {
                         setNewDate(nextAppointment.booking_date);
                         setNewTime(nextAppointment.booking_time);
                       }}
-                      className="bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-xl text-xs font-bold gap-2 px-4 py-2"
+                      className="bg-pink-50 hover:bg-pink-100 text-pink-700 border border-pink-200 rounded-xl text-xs font-bold gap-2 px-4 py-2"
                     >
-                      <RotateCcw className="w-3.5 h-3.5 text-pink-400" />
+                      <RotateCcw className="w-3.5 h-3.5 text-pink-500" />
                       Reschedule
                     </Button>
 
                     <Button
                       onClick={() => setBookingToCancel(nextAppointment)}
-                      className="bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-xl text-xs font-bold gap-2 px-4 py-2"
+                      className="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold gap-2 px-4 py-2"
                     >
                       <X className="w-3.5 h-3.5" />
                       Cancel Booking
@@ -763,7 +763,7 @@ export function MyBookingsPage() {
 
                     <Button
                       onClick={() => setSelectedBookingDetails(nextAppointment)}
-                      className="bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-700 hover:to-rose-600 text-white rounded-xl text-xs font-bold gap-2 px-4 py-2 shadow-lg"
+                      className="bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-700 hover:to-rose-600 text-white rounded-xl text-xs font-bold gap-2 px-4 py-2 shadow-md shadow-pink-600/20"
                     >
                       <ExternalLink className="w-3.5 h-3.5" />
                       View Details
@@ -773,59 +773,59 @@ export function MyBookingsPage() {
 
                 {/* Details Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-                  <div className="bg-slate-950/60 border border-pink-500/20 rounded-2xl p-4">
-                    <div className="flex items-center gap-2.5 text-slate-400 text-xs mb-1">
-                      <CalendarIcon className="w-4 h-4 text-pink-400" />
+                  <div className="bg-rose-50/50 border border-pink-100/80 rounded-2xl p-4">
+                    <div className="flex items-center gap-2.5 text-slate-500 text-xs mb-1">
+                      <CalendarIcon className="w-4 h-4 text-pink-500" />
                       Date & Day
                     </div>
-                    <p className="text-base font-bold text-white">{nextAppointment.booking_date}</p>
-                    <p className="text-xs text-pink-300 font-medium">Scheduled at Atelier</p>
+                    <p className="text-base font-bold text-slate-900">{nextAppointment.booking_date}</p>
+                    <p className="text-xs text-pink-600 font-medium">Scheduled at Atelier</p>
                   </div>
 
-                  <div className="bg-slate-950/60 border border-pink-500/20 rounded-2xl p-4">
-                    <div className="flex items-center gap-2.5 text-slate-400 text-xs mb-1">
-                      <Clock className="w-4 h-4 text-pink-400" />
+                  <div className="bg-rose-50/50 border border-pink-100/80 rounded-2xl p-4">
+                    <div className="flex items-center gap-2.5 text-slate-500 text-xs mb-1">
+                      <Clock className="w-4 h-4 text-pink-500" />
                       Appointment Time
                     </div>
-                    <p className="text-base font-bold text-white">{nextAppointment.booking_time}</p>
-                    <p className="text-xs text-emerald-400 font-medium">Confirmed Slot</p>
+                    <p className="text-base font-bold text-slate-900">{nextAppointment.booking_time}</p>
+                    <p className="text-xs text-emerald-600 font-medium">Confirmed Slot</p>
                   </div>
 
-                  <div className="bg-slate-950/60 border border-pink-500/20 rounded-2xl p-4">
-                    <div className="flex items-center gap-2.5 text-slate-400 text-xs mb-1">
-                      <MapPin className="w-4 h-4 text-pink-400" />
+                  <div className="bg-rose-50/50 border border-pink-100/80 rounded-2xl p-4">
+                    <div className="flex items-center gap-2.5 text-slate-500 text-xs mb-1">
+                      <MapPin className="w-4 h-4 text-pink-500" />
                       Location
                     </div>
-                    <p className="text-base font-bold text-white">
+                    <p className="text-base font-bold text-slate-900">
                       {nextAppointment.visit_type === 'home' ? 'Doorstep Home Visit' : 'Jaipur Atelier Studio'}
                     </p>
-                    <p className="text-xs text-slate-400 truncate">Mansarovar, Jaipur</p>
+                    <p className="text-xs text-slate-500 truncate">Mansarovar, Jaipur</p>
                   </div>
 
-                  <div className="bg-slate-950/60 border border-pink-500/20 rounded-2xl p-4">
-                    <div className="flex items-center gap-2.5 text-slate-400 text-xs mb-1">
-                      <Sparkles className="w-4 h-4 text-amber-400" />
+                  <div className="bg-rose-50/50 border border-pink-100/80 rounded-2xl p-4">
+                    <div className="flex items-center gap-2.5 text-slate-500 text-xs mb-1">
+                      <Sparkles className="w-4 h-4 text-amber-500" />
                       Master Artist
                     </div>
-                    <p className="text-base font-bold text-amber-300">
+                    <p className="text-base font-bold text-amber-700">
                       {nextAppointment.technician || 'Uma Sharma'}
                     </p>
-                    <p className="text-xs text-slate-400">Principal Nail Designer</p>
+                    <p className="text-xs text-slate-500">Principal Nail Designer</p>
                   </div>
                 </div>
               </motion.div>
             ) : (
-              <div className="text-center py-16 bg-white/5 border border-white/10 rounded-3xl backdrop-blur-md p-8 max-w-lg mx-auto">
-                <div className="w-16 h-16 rounded-full bg-pink-500/20 border border-pink-500/30 flex items-center justify-center mx-auto text-pink-400 mb-4">
+              <div className="text-center py-16 bg-white/80 border border-white/90 shadow-lg shadow-pink-900/5 rounded-3xl backdrop-blur-md p-8 max-w-lg mx-auto">
+                <div className="w-16 h-16 rounded-full bg-pink-100 border border-pink-200 flex items-center justify-center mx-auto text-pink-600 mb-4">
                   <CalendarIcon className="w-8 h-8" />
                 </div>
-                <h3 className="text-xl font-serif font-bold text-white">No Upcoming Appointments</h3>
-                <p className="text-sm text-slate-400 mt-2 mb-6">
+                <h3 className="text-xl font-serif font-bold text-slate-900">No Upcoming Appointments</h3>
+                <p className="text-sm text-slate-600 mt-2 mb-6">
                   You do not have any active appointments scheduled. Pamper yourself with our Russian dry manicure, 3D chrome art, or bridal spa.
                 </p>
                 <Button
                   onClick={() => navigate('/book')}
-                  className="bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-700 hover:to-rose-600 text-white rounded-xl font-bold px-6 py-2.5"
+                  className="bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-700 hover:to-rose-600 text-white rounded-xl font-bold px-6 py-2.5 shadow-md shadow-pink-600/20"
                 >
                   Book New Appointment
                 </Button>
@@ -835,37 +835,37 @@ export function MyBookingsPage() {
             {/* Other Active Appointments if multiple */}
             {upcomingBookings.length > 1 && (
               <div className="space-y-4">
-                <h3 className="text-lg font-serif font-bold text-white flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-pink-400" /> Additional Upcoming Sessions ({upcomingBookings.length - 1})
+                <h3 className="text-lg font-serif font-bold text-slate-900 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-pink-500" /> Additional Upcoming Sessions ({upcomingBookings.length - 1})
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {upcomingBookings.slice(1).map((item) => (
                     <div
                       key={item.id}
-                      className="bg-slate-900/80 border border-pink-500/20 rounded-2xl p-5 backdrop-blur-xl flex flex-col justify-between"
+                      className="bg-white/80 border border-white/90 shadow-lg shadow-pink-900/5 rounded-2xl p-5 backdrop-blur-xl flex flex-col justify-between"
                     >
                       <div>
                         <div className="flex items-center justify-between gap-2 mb-2">
-                          <span className="text-xs text-pink-300 font-mono font-bold">{item.id}</span>
+                          <span className="text-xs text-pink-600 font-mono font-bold">{item.id}</span>
                           {getStatusBadge(item.status)}
                         </div>
-                        <h4 className="font-serif font-bold text-white text-base sm:text-lg">
+                        <h4 className="font-serif font-bold text-slate-900 text-base sm:text-lg">
                           {item.service_names.join(', ')}
                         </h4>
-                        <div className="flex items-center gap-4 text-xs text-slate-300 mt-3">
+                        <div className="flex items-center gap-4 text-xs text-slate-600 mt-3">
                           <span className="flex items-center gap-1.5">
-                            <CalendarIcon className="w-3.5 h-3.5 text-pink-400" /> {item.booking_date}
+                            <CalendarIcon className="w-3.5 h-3.5 text-pink-500" /> {item.booking_date}
                           </span>
                           <span className="flex items-center gap-1.5">
-                            <Clock className="w-3.5 h-3.5 text-pink-400" /> {item.booking_time}
+                            <Clock className="w-3.5 h-3.5 text-pink-500" /> {item.booking_time}
                           </span>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 mt-4 pt-3 border-t border-pink-500/10">
+                      <div className="flex items-center gap-2 mt-4 pt-3 border-t border-pink-100">
                         <Button
                           onClick={() => setSelectedBookingDetails(item)}
-                          className="flex-1 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold"
+                          className="flex-1 bg-pink-50 hover:bg-pink-100 text-pink-800 rounded-xl text-xs font-bold"
                         >
                           Details
                         </Button>
@@ -875,7 +875,7 @@ export function MyBookingsPage() {
                             setNewDate(item.booking_date);
                             setNewTime(item.booking_time);
                           }}
-                          className="bg-pink-500/20 hover:bg-pink-500/30 text-pink-300 rounded-xl text-xs font-bold"
+                          className="bg-pink-100 hover:bg-pink-200 text-pink-700 rounded-xl text-xs font-bold"
                         >
                           Reschedule
                         </Button>
@@ -892,20 +892,20 @@ export function MyBookingsPage() {
         {activeTab === 'history' && (
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <h2 className="text-xl sm:text-2xl font-serif font-bold text-white">
+              <h2 className="text-xl sm:text-2xl font-serif font-bold text-slate-900">
                 All Appointment Records
               </h2>
 
               {/* Status Filter Buttons */}
-              <div className="flex items-center gap-1.5 bg-slate-900 border border-white/10 p-1 rounded-xl overflow-x-auto max-w-full">
+              <div className="flex items-center gap-1.5 bg-white/80 border border-pink-100 p-1 rounded-xl shadow-xs overflow-x-auto max-w-full">
                 {(['all', 'confirmed', 'pending', 'completed', 'cancelled'] as const).map((st) => (
                   <button
                     key={st}
                     onClick={() => setStatusFilter(st)}
                     className={`px-3 py-1 rounded-lg text-xs font-bold capitalize transition-all ${
                       statusFilter === st
-                        ? 'bg-pink-600 text-white shadow'
-                        : 'text-slate-400 hover:text-white'
+                        ? 'bg-pink-600 text-white shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-rose-50'
                     }`}
                   >
                     {st}
@@ -922,42 +922,42 @@ export function MyBookingsPage() {
                     layout
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="bg-gradient-to-b from-white/10 to-white/5 border border-white/15 rounded-2xl p-5 backdrop-blur-xl flex flex-col justify-between hover:border-pink-500/40 transition-all shadow-lg"
+                    className="bg-white/80 border border-white/90 rounded-2xl p-5 backdrop-blur-xl flex flex-col justify-between hover:border-pink-300 transition-all shadow-lg shadow-pink-900/5"
                   >
                     <div>
                       <div className="flex items-center justify-between mb-3">
-                        <span className="font-mono text-xs text-pink-400 font-bold">{b.id}</span>
+                        <span className="font-mono text-xs text-pink-600 font-bold">{b.id}</span>
                         {getStatusBadge(b.status)}
                       </div>
 
-                      <h3 className="font-serif font-bold text-white text-lg line-clamp-1 mb-2">
+                      <h3 className="font-serif font-bold text-slate-900 text-lg line-clamp-1 mb-2">
                         {b.service_names.join(', ')}
                       </h3>
 
-                      <div className="space-y-2 text-xs text-slate-300">
+                      <div className="space-y-2 text-xs text-slate-600">
                         <div className="flex items-center justify-between">
-                          <span className="text-slate-400">Date & Slot:</span>
-                          <span className="font-medium text-white">{b.booking_date} • {b.booking_time}</span>
+                          <span className="text-slate-500">Date & Slot:</span>
+                          <span className="font-medium text-slate-900">{b.booking_date} • {b.booking_time}</span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-slate-400">Location:</span>
-                          <span className="capitalize text-slate-200">{b.visit_type} Service</span>
+                          <span className="text-slate-500">Location:</span>
+                          <span className="capitalize text-slate-800">{b.visit_type} Service</span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-slate-400">Artist:</span>
-                          <span className="text-amber-300">{b.technician || 'Uma Sharma'}</span>
+                          <span className="text-slate-500">Artist:</span>
+                          <span className="text-amber-700 font-medium">{b.technician || 'Uma Sharma'}</span>
                         </div>
-                        <div className="flex items-center justify-between pt-2 border-t border-white/10 font-bold">
-                          <span className="text-slate-300">Total Price:</span>
-                          <span className="text-pink-300 font-serif text-sm">₹{b.total_price.toLocaleString('en-IN')}</span>
+                        <div className="flex items-center justify-between pt-2 border-t border-pink-100 font-bold">
+                          <span className="text-slate-700">Total Price:</span>
+                          <span className="text-pink-600 font-serif text-sm">₹{b.total_price.toLocaleString('en-IN')}</span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 mt-5 pt-3 border-t border-white/10">
+                    <div className="flex items-center gap-2 mt-5 pt-3 border-t border-pink-100">
                       <Button
                         onClick={() => setSelectedBookingDetails(b)}
-                        className="flex-1 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold"
+                        className="flex-1 bg-pink-50 hover:bg-pink-100 text-pink-800 rounded-xl text-xs font-bold"
                       >
                         View Details
                       </Button>
@@ -968,7 +968,7 @@ export function MyBookingsPage() {
                             setNewDate(b.booking_date);
                             setNewTime(b.booking_time);
                           }}
-                          className="bg-pink-500/20 hover:bg-pink-500/30 text-pink-300 rounded-xl text-xs font-bold px-3"
+                          className="bg-pink-100 hover:bg-pink-200 text-pink-700 rounded-xl text-xs font-bold px-3"
                         >
                           Reschedule
                         </Button>
@@ -985,8 +985,8 @@ export function MyBookingsPage() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12 bg-white/5 border border-white/10 rounded-2xl p-6">
-                <p className="text-slate-400 text-sm">No records match the filter "{statusFilter}".</p>
+              <div className="text-center py-12 bg-white/80 border border-white/90 rounded-2xl p-6 shadow-sm">
+                <p className="text-slate-500 text-sm">No records match the filter "{statusFilter}".</p>
               </div>
             )}
           </div>
@@ -999,14 +999,14 @@ export function MyBookingsPage() {
             <div>
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <h3 className="text-xl font-serif font-bold text-white flex items-center gap-2">
+                  <h3 className="text-xl font-serif font-bold text-slate-900 flex items-center gap-2">
                     <Heart className="w-5 h-5 text-pink-500 fill-pink-500" /> Saved Favorite Treatments
                   </h3>
-                  <p className="text-xs text-slate-400 mt-1">Quick-access your most loved nail art and spa rituals.</p>
+                  <p className="text-xs text-slate-500 mt-1">Quick-access your most loved nail art and spa rituals.</p>
                 </div>
                 <Button
                   onClick={() => navigate('/services')}
-                  className="bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold gap-1.5"
+                  className="bg-pink-50 hover:bg-pink-100 text-pink-700 border border-pink-200 rounded-xl text-xs font-bold gap-1.5"
                 >
                   Explore All Services <ArrowRight className="w-3.5 h-3.5" />
                 </Button>
@@ -1016,7 +1016,7 @@ export function MyBookingsPage() {
                 {DEFAULT_FAVORITE_SERVICES.map((s) => (
                   <div
                     key={s.id}
-                    className="bg-gradient-to-b from-white/10 to-white/5 border border-white/15 rounded-2xl overflow-hidden backdrop-blur-xl group hover:border-pink-500/40 transition-all"
+                    className="bg-white/80 border border-white/90 rounded-2xl overflow-hidden backdrop-blur-xl group hover:border-pink-300 transition-all shadow-lg shadow-pink-900/5"
                   >
                     <div className="h-44 relative overflow-hidden">
                       <img
@@ -1024,19 +1024,19 @@ export function MyBookingsPage() {
                         alt={s.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
-                      <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-slate-950/80 backdrop-blur-md text-[11px] font-bold text-pink-300">
+                      <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-md text-[11px] font-bold text-pink-700 border border-white/80 shadow-xs">
                         {s.category}
                       </div>
                     </div>
                     <div className="p-4">
-                      <h4 className="font-serif font-bold text-white text-base line-clamp-1">{s.name}</h4>
-                      <div className="flex items-center justify-between text-xs text-slate-300 mt-2 mb-4">
-                        <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5 text-pink-400" /> {s.duration}</span>
-                        <span className="font-serif font-bold text-pink-300 text-sm">₹{s.price.toLocaleString('en-IN')}</span>
+                      <h4 className="font-serif font-bold text-slate-900 text-base line-clamp-1">{s.name}</h4>
+                      <div className="flex items-center justify-between text-xs text-slate-600 mt-2 mb-4">
+                        <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5 text-pink-500" /> {s.duration}</span>
+                        <span className="font-serif font-bold text-pink-600 text-sm">₹{s.price.toLocaleString('en-IN')}</span>
                       </div>
                       <Button
                         onClick={() => navigate(`/book?service=${s.id}`)}
-                        className="w-full bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-700 hover:to-rose-600 text-white rounded-xl text-xs font-bold"
+                        className="w-full bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-700 hover:to-rose-600 text-white rounded-xl text-xs font-bold shadow-md shadow-pink-600/20"
                       >
                         Book This Treatment
                       </Button>
@@ -1050,14 +1050,14 @@ export function MyBookingsPage() {
             <div>
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <h3 className="text-xl font-serif font-bold text-white flex items-center gap-2">
-                    <Package className="w-5 h-5 text-amber-400" /> Preferred Luxury Packages
+                  <h3 className="text-xl font-serif font-bold text-slate-900 flex items-center gap-2">
+                    <Package className="w-5 h-5 text-amber-500" /> Preferred Luxury Packages
                   </h3>
-                  <p className="text-xs text-slate-400 mt-1">Curated value bundles tailored for brides and weekend pampering.</p>
+                  <p className="text-xs text-slate-500 mt-1">Curated value bundles tailored for brides and weekend pampering.</p>
                 </div>
                 <Button
                   onClick={() => navigate('/packages')}
-                  className="bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold gap-1.5"
+                  className="bg-pink-50 hover:bg-pink-100 text-pink-700 border border-pink-200 rounded-xl text-xs font-bold gap-1.5"
                 >
                   View All Packages <ArrowRight className="w-3.5 h-3.5" />
                 </Button>
@@ -1067,29 +1067,29 @@ export function MyBookingsPage() {
                 {DEFAULT_FAVORITE_PACKAGES.map((pkg) => (
                   <div
                     key={pkg.id}
-                    className="bg-gradient-to-br from-pink-950/40 via-slate-900/90 to-slate-900/95 border border-pink-500/20 rounded-2xl p-5 backdrop-blur-xl flex flex-col sm:flex-row items-start gap-5 hover:border-pink-500/40 transition-all"
+                    className="bg-white/80 border border-white/90 rounded-2xl p-5 backdrop-blur-xl flex flex-col sm:flex-row items-start gap-5 hover:border-pink-300 transition-all shadow-lg shadow-pink-900/5"
                   >
                     <img
                       src={pkg.image}
                       alt={pkg.name}
-                      className="w-full sm:w-36 h-36 object-cover rounded-xl border border-pink-500/20"
+                      className="w-full sm:w-36 h-36 object-cover rounded-xl border border-pink-100"
                     />
                     <div className="flex-1">
-                      <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[10px] font-bold">
+                      <span className="px-2.5 py-0.5 rounded-full bg-amber-100 border border-amber-200 text-amber-800 text-[10px] font-bold">
                         {pkg.badge}
                       </span>
-                      <h4 className="font-serif font-bold text-white text-lg mt-1.5">{pkg.name}</h4>
-                      <p className="text-xs text-slate-300 mt-1 flex items-center gap-2">
-                        <Clock className="w-3.5 h-3.5 text-pink-400" /> Duration: {pkg.duration}
+                      <h4 className="font-serif font-bold text-slate-900 text-lg mt-1.5">{pkg.name}</h4>
+                      <p className="text-xs text-slate-600 mt-1 flex items-center gap-2">
+                        <Clock className="w-3.5 h-3.5 text-pink-500" /> Duration: {pkg.duration}
                       </p>
                       <div className="flex items-baseline gap-2 mt-2 mb-4">
-                        <span className="font-serif font-bold text-pink-300 text-lg">₹{pkg.price.toLocaleString('en-IN')}</span>
-                        <span className="text-xs line-through text-slate-500">₹{pkg.originalPrice.toLocaleString('en-IN')}</span>
-                        <span className="text-[11px] text-emerald-400 font-bold">Save {pkg.savings}</span>
+                        <span className="font-serif font-bold text-pink-600 text-lg">₹{pkg.price.toLocaleString('en-IN')}</span>
+                        <span className="text-xs line-through text-slate-400">₹{pkg.originalPrice.toLocaleString('en-IN')}</span>
+                        <span className="text-[11px] text-emerald-600 font-bold">Save {pkg.savings}</span>
                       </div>
                       <Button
                         onClick={() => navigate(`/book?package=${pkg.id}`)}
-                        className="bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-700 hover:to-rose-600 text-white rounded-xl text-xs font-bold px-4"
+                        className="bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-700 hover:to-rose-600 text-white rounded-xl text-xs font-bold px-4 shadow-md shadow-pink-600/20"
                       >
                         Reserve Package
                       </Button>
@@ -1105,38 +1105,38 @@ export function MyBookingsPage() {
         {activeTab === 'referral' && (
           <div className="space-y-8">
             {/* Hero Card */}
-            <div className="relative overflow-hidden bg-gradient-to-br from-pink-950/70 via-slate-900/90 to-slate-900/95 border border-pink-500/30 rounded-3xl p-6 sm:p-8 backdrop-blur-2xl shadow-2xl">
-              <div className="absolute -top-12 -right-12 w-64 h-64 bg-rose-500/15 rounded-full blur-3xl pointer-events-none" />
+            <div className="relative overflow-hidden bg-white/80 border border-white/90 rounded-3xl p-6 sm:p-8 backdrop-blur-2xl shadow-xl shadow-pink-900/5">
+              <div className="absolute -top-12 -right-12 w-64 h-64 bg-rose-200/20 rounded-full blur-3xl pointer-events-none" />
               <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
                 <div>
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500/20 to-pink-500/20 border border-amber-500/30 text-amber-300 text-xs font-bold uppercase tracking-wider mb-3">
-                    <Gift className="w-3.5 h-3.5" /> Give ₹300, Get ₹300 VIP Rewards
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-amber-100 to-pink-100 border border-pink-200 text-pink-800 text-xs font-bold uppercase tracking-wider mb-3">
+                    <Gift className="w-3.5 h-3.5 text-amber-600" /> Give ₹300, Get ₹300 VIP Rewards
                   </span>
-                  <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white">
+                  <h2 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900">
                     Refer Friends to Nails by Uma Atelier
                   </h2>
-                  <p className="text-xs sm:text-sm text-slate-300 mt-2 max-w-xl">
-                    Share your unique invitation link. Your friend gets <strong className="text-pink-300">₹300 OFF</strong> their first luxury session, and you automatically earn <strong className="text-amber-300">₹300 Wallet Credit</strong> as soon as their visit is complete!
+                  <p className="text-xs sm:text-sm text-slate-600 mt-2 max-w-xl">
+                    Share your unique invitation link. Your friend gets <strong className="text-pink-600">₹300 OFF</strong> their first luxury session, and you automatically earn <strong className="text-amber-700">₹300 Wallet Credit</strong> as soon as their visit is complete!
                   </p>
                 </div>
 
-                <div className="w-full lg:w-auto bg-slate-950/70 border border-pink-500/20 rounded-2xl p-4 text-center">
-                  <p className="text-[11px] font-medium text-slate-400 uppercase tracking-wide">Total Referral Earnings</p>
-                  <p className="text-3xl font-serif font-bold text-amber-300 mt-1">₹900</p>
-                  <p className="text-[11px] text-emerald-400 font-semibold mt-1">3 Friends Invited</p>
+                <div className="w-full lg:w-auto bg-rose-50/70 border border-pink-200/80 rounded-2xl p-4 text-center">
+                  <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wide">Total Referral Earnings</p>
+                  <p className="text-3xl font-serif font-bold text-amber-700 mt-1">₹900</p>
+                  <p className="text-[11px] text-emerald-600 font-semibold mt-1">3 Friends Invited</p>
                 </div>
               </div>
 
               {/* Shareable Link Box */}
-              <div className="mt-8 pt-6 border-t border-pink-500/20 grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-                <div className="md:col-span-8 bg-slate-950/80 border border-pink-500/30 rounded-2xl p-3.5 flex items-center justify-between gap-3">
+              <div className="mt-8 pt-6 border-t border-pink-100 grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                <div className="md:col-span-8 bg-rose-50/80 border border-pink-200 rounded-2xl p-3.5 flex items-center justify-between gap-3">
                   <div className="overflow-hidden">
-                    <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Your Personal Invitation Link</p>
-                    <p className="text-xs sm:text-sm font-mono font-bold text-pink-300 truncate mt-0.5">{referralLink}</p>
+                    <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">Your Personal Invitation Link</p>
+                    <p className="text-xs sm:text-sm font-mono font-bold text-pink-600 truncate mt-0.5">{referralLink}</p>
                   </div>
                   <Button
                     onClick={handleCopyReferralLink}
-                    className="bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-700 hover:to-rose-600 text-white rounded-xl text-xs font-bold gap-1.5 px-4 shrink-0"
+                    className="bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-700 hover:to-rose-600 text-white rounded-xl text-xs font-bold gap-1.5 px-4 shrink-0 shadow-sm"
                   >
                     <Share2 className="w-3.5 h-3.5" /> Copy Link
                   </Button>
@@ -1145,15 +1145,15 @@ export function MyBookingsPage() {
                 <div className="md:col-span-4 flex items-center gap-2">
                   <Button
                     onClick={handleWhatsAppShare}
-                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs font-bold gap-2 py-3"
+                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs font-bold gap-2 py-3 shadow-sm"
                   >
                     <Phone className="w-4 h-4" /> Share on WhatsApp
                   </Button>
                   <Button
                     onClick={handleCopyReferralCode}
-                    className="bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-2xl text-xs font-bold gap-1.5 px-4 py-3"
+                    className="bg-pink-50 hover:bg-pink-100 text-slate-800 border border-pink-200 rounded-2xl text-xs font-bold gap-1.5 px-4 py-3"
                   >
-                    Code: <span className="font-mono text-amber-300">{referralCode}</span>
+                    Code: <span className="font-mono text-amber-700">{referralCode}</span>
                   </Button>
                 </div>
               </div>
@@ -1161,43 +1161,43 @@ export function MyBookingsPage() {
 
             {/* How It Works Steps */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              <div className="bg-gradient-to-b from-white/10 to-white/5 border border-white/15 rounded-2xl p-5 backdrop-blur-xl">
-                <div className="w-9 h-9 rounded-xl bg-pink-500/20 border border-pink-500/30 text-pink-300 font-bold flex items-center justify-center mb-3">1</div>
-                <h4 className="font-serif font-bold text-white text-base">Send Link or Code</h4>
-                <p className="text-xs text-slate-300 mt-1">Copy your unique VIP link or code <code className="text-pink-300 font-bold">{referralCode}</code> and pass it to friends in Jaipur.</p>
+              <div className="bg-white/80 border border-white/90 rounded-2xl p-5 backdrop-blur-xl shadow-md shadow-pink-900/5">
+                <div className="w-9 h-9 rounded-xl bg-pink-100 border border-pink-200 text-pink-700 font-bold flex items-center justify-center mb-3">1</div>
+                <h4 className="font-serif font-bold text-slate-900 text-base">Send Link or Code</h4>
+                <p className="text-xs text-slate-600 mt-1">Copy your unique VIP link or code <code className="text-pink-600 font-bold">{referralCode}</code> and pass it to friends in Jaipur.</p>
               </div>
 
-              <div className="bg-gradient-to-b from-white/10 to-white/5 border border-white/15 rounded-2xl p-5 backdrop-blur-xl">
-                <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-300 font-bold flex items-center justify-center mb-3">2</div>
-                <h4 className="font-serif font-bold text-white text-base">Friend Books & Saves ₹300</h4>
-                <p className="text-xs text-slate-300 mt-1">When your friend books any nail or spa service online, flat ₹300 discount is automatically applied.</p>
+              <div className="bg-white/80 border border-white/90 rounded-2xl p-5 backdrop-blur-xl shadow-md shadow-pink-900/5">
+                <div className="w-9 h-9 rounded-xl bg-amber-100 border border-amber-200 text-amber-700 font-bold flex items-center justify-center mb-3">2</div>
+                <h4 className="font-serif font-bold text-slate-900 text-base">Friend Books & Saves ₹300</h4>
+                <p className="text-xs text-slate-600 mt-1">When your friend books any nail or spa service online, flat ₹300 discount is automatically applied.</p>
               </div>
 
-              <div className="bg-gradient-to-b from-white/10 to-white/5 border border-white/15 rounded-2xl p-5 backdrop-blur-xl">
-                <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-bold flex items-center justify-center mb-3">3</div>
-                <h4 className="font-serif font-bold text-white text-base">You Get ₹300 Wallet Credit</h4>
-                <p className="text-xs text-slate-300 mt-1">Once their salon or doorstep session is finished, ₹300 credit is deposited directly into your Luxe Wallet.</p>
+              <div className="bg-white/80 border border-white/90 rounded-2xl p-5 backdrop-blur-xl shadow-md shadow-pink-900/5">
+                <div className="w-9 h-9 rounded-xl bg-emerald-100 border border-emerald-200 text-emerald-700 font-bold flex items-center justify-center mb-3">3</div>
+                <h4 className="font-serif font-bold text-slate-900 text-base">You Get ₹300 Wallet Credit</h4>
+                <p className="text-xs text-slate-600 mt-1">Once their salon or doorstep session is finished, ₹300 credit is deposited directly into your Luxe Wallet.</p>
               </div>
             </div>
 
             {/* Status of Referred Bookings */}
-            <div className="bg-gradient-to-b from-white/10 to-white/5 border border-white/15 rounded-3xl p-6 sm:p-8 backdrop-blur-xl">
+            <div className="bg-white/80 border border-white/90 rounded-3xl p-6 sm:p-8 backdrop-blur-xl shadow-lg shadow-pink-900/5">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="text-xl font-serif font-bold text-white flex items-center gap-2">
-                    <Award className="w-5 h-5 text-amber-400" /> Referred Bookings & Reward Status
+                  <h3 className="text-xl font-serif font-bold text-slate-900 flex items-center gap-2">
+                    <Award className="w-5 h-5 text-amber-500" /> Referred Bookings & Reward Status
                   </h3>
-                  <p className="text-xs text-slate-400 mt-1">Live tracking of your friends' reservations and earned rewards.</p>
+                  <p className="text-xs text-slate-500 mt-1">Live tracking of your friends' reservations and earned rewards.</p>
                 </div>
-                <span className="px-3 py-1 rounded-full bg-pink-500/20 border border-pink-500/30 text-pink-300 text-xs font-bold">
+                <span className="px-3 py-1 rounded-full bg-pink-100 border border-pink-200 text-pink-700 text-xs font-bold">
                   {referredBookings.length} Active Referrals
                 </span>
               </div>
 
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs text-slate-300 border-collapse">
+                <table className="w-full text-left text-xs text-slate-700 border-collapse">
                   <thead>
-                    <tr className="border-b border-white/10 text-slate-400 uppercase text-[10px] tracking-wider">
+                    <tr className="border-b border-pink-100 text-slate-500 uppercase text-[10px] tracking-wider">
                       <th className="py-3 px-4">Ref ID</th>
                       <th className="py-3 px-4">Friend Name</th>
                       <th className="py-3 px-4">Booking Date</th>
@@ -1206,26 +1206,26 @@ export function MyBookingsPage() {
                       <th className="py-3 px-4 text-right">Your Reward</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/5">
+                  <tbody className="divide-y divide-pink-50">
                     {referredBookings.map((ref) => (
-                      <tr key={ref.id} className="hover:bg-white/5 transition-colors">
-                        <td className="py-3.5 px-4 font-mono font-bold text-pink-300">{ref.id}</td>
-                        <td className="py-3.5 px-4 font-bold text-white">{ref.friendName}</td>
-                        <td className="py-3.5 px-4 text-slate-300">{ref.date}</td>
-                        <td className="py-3.5 px-4 text-slate-300">{ref.service}</td>
+                      <tr key={ref.id} className="hover:bg-rose-50/50 transition-colors">
+                        <td className="py-3.5 px-4 font-mono font-bold text-pink-600">{ref.id}</td>
+                        <td className="py-3.5 px-4 font-bold text-slate-900">{ref.friendName}</td>
+                        <td className="py-3.5 px-4 text-slate-600">{ref.date}</td>
+                        <td className="py-3.5 px-4 text-slate-600">{ref.service}</td>
                         <td className="py-3.5 px-4">
                           <span
                             className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold ${
                               ref.status === 'Completed'
-                                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                                : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                                ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                                : 'bg-amber-100 text-amber-800 border border-amber-200'
                             }`}
                           >
                             {ref.status === 'Completed' ? <CheckCircle2 className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
                             {ref.status}
                           </span>
                         </td>
-                        <td className="py-3.5 px-4 text-right font-serif font-bold text-amber-300">
+                        <td className="py-3.5 px-4 text-right font-serif font-bold text-amber-700">
                           {ref.rewardEarned}
                         </td>
                       </tr>
@@ -1240,23 +1240,23 @@ export function MyBookingsPage() {
         {/* TAB 5: PROFILE & VIP SETTINGS */}
         {activeTab === 'profile' && (
           <div className="max-w-3xl mx-auto">
-            <div className="bg-gradient-to-b from-white/10 to-white/5 border border-white/15 rounded-3xl p-6 sm:p-8 backdrop-blur-xl shadow-2xl">
-              <div className="flex items-center justify-between pb-6 border-b border-white/10">
+            <div className="bg-white/80 border border-white/90 rounded-3xl p-6 sm:p-8 backdrop-blur-xl shadow-xl shadow-pink-900/5">
+              <div className="flex items-center justify-between pb-6 border-b border-pink-100">
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-pink-600 to-rose-400 flex items-center justify-center text-white text-xl font-bold shadow-lg">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-pink-600 to-rose-400 flex items-center justify-center text-white text-xl font-bold shadow-md shadow-pink-500/20">
                     {profileName.charAt(0)}
                   </div>
                   <div>
-                    <h3 className="text-xl font-serif font-bold text-white">{profileName}</h3>
-                    <p className="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
-                      <Crown className="w-3.5 h-3.5 text-amber-400" /> Gold Tier Atelier VIP Client
+                    <h3 className="text-xl font-serif font-bold text-slate-900">{profileName}</h3>
+                    <p className="text-xs text-slate-500 flex items-center gap-1.5 mt-0.5">
+                      <Crown className="w-3.5 h-3.5 text-amber-500" /> Gold Tier Atelier VIP Client
                     </p>
                   </div>
                 </div>
 
                 <Button
                   onClick={() => setIsEditingProfile(!isEditingProfile)}
-                  className="bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold gap-1.5"
+                  className="bg-pink-50 hover:bg-pink-100 text-pink-700 border border-pink-200 rounded-xl text-xs font-bold gap-1.5"
                 >
                   <Edit3 className="w-3.5 h-3.5" />
                   {isEditingProfile ? 'Cancel Edit' : 'Edit Profile'}
@@ -1267,33 +1267,33 @@ export function MyBookingsPage() {
               {isEditingProfile ? (
                 <form onSubmit={handleSaveProfile} className="space-y-4 mt-6">
                   <div>
-                    <Label className="text-xs text-slate-300">Full Name</Label>
+                    <Label className="text-xs text-slate-700">Full Name</Label>
                     <Input
                       value={profileName}
                       onChange={(e) => setProfileName(e.target.value)}
-                      className="mt-1 bg-slate-900 border-pink-500/30 text-white rounded-xl"
+                      className="mt-1 bg-white border-pink-200 text-slate-900 rounded-xl"
                       required
                     />
                   </div>
 
                   <div>
-                    <Label className="text-xs text-slate-300">Email Address</Label>
+                    <Label className="text-xs text-slate-700">Email Address</Label>
                     <Input
                       type="email"
                       value={profileEmail}
                       onChange={(e) => setProfileEmail(e.target.value)}
-                      className="mt-1 bg-slate-900 border-pink-500/30 text-white rounded-xl"
+                      className="mt-1 bg-white border-pink-200 text-slate-900 rounded-xl"
                       required
                     />
                   </div>
 
                   <div>
-                    <Label className="text-xs text-slate-300">Doorstep Home Address (for Mobile Beauty Services)</Label>
+                    <Label className="text-xs text-slate-700">Doorstep Home Address (for Mobile Beauty Services)</Label>
                     <Input
                       value={profileAddress}
                       onChange={(e) => setProfileAddress(e.target.value)}
                       placeholder="Street, Area, Jaipur"
-                      className="mt-1 bg-slate-900 border-pink-500/30 text-white rounded-xl"
+                      className="mt-1 bg-white border-pink-200 text-slate-900 rounded-xl"
                     />
                   </div>
 
@@ -1301,51 +1301,51 @@ export function MyBookingsPage() {
                     <Button
                       type="button"
                       onClick={() => setIsEditingProfile(false)}
-                      className="bg-white/10 text-white rounded-xl text-xs"
+                      className="bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs"
                     >
                       Cancel
                     </Button>
                     <Button
                       type="submit"
-                      className="bg-gradient-to-r from-pink-600 to-rose-500 text-white rounded-xl text-xs font-bold"
+                      className="bg-gradient-to-r from-pink-600 to-rose-500 text-white rounded-xl text-xs font-bold shadow-md shadow-pink-600/20"
                     >
                       Save Changes
                     </Button>
                   </div>
                 </form>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 text-xs text-slate-300">
-                  <div className="bg-slate-900/60 p-4 rounded-xl border border-white/10">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 text-xs text-slate-700">
+                  <div className="bg-rose-50/50 p-4 rounded-xl border border-pink-100">
                     <span className="text-slate-500 block mb-1">Phone Number:</span>
-                    <span className="text-white font-medium">{phone || 'Not provided'}</span>
+                    <span className="text-slate-900 font-medium">{phone || 'Not provided'}</span>
                   </div>
-                  <div className="bg-slate-900/60 p-4 rounded-xl border border-white/10">
+                  <div className="bg-rose-50/50 p-4 rounded-xl border border-pink-100">
                     <span className="text-slate-500 block mb-1">Email:</span>
-                    <span className="text-white font-medium">{profileEmail}</span>
+                    <span className="text-slate-900 font-medium">{profileEmail}</span>
                   </div>
-                  <div className="bg-slate-900/60 p-4 rounded-xl border border-white/10 sm:col-span-2">
+                  <div className="bg-rose-50/50 p-4 rounded-xl border border-pink-100 sm:col-span-2">
                     <span className="text-slate-500 block mb-1">Saved Home Address:</span>
-                    <span className="text-white font-medium">{profileAddress}</span>
+                    <span className="text-slate-900 font-medium">{profileAddress}</span>
                   </div>
                 </div>
               )}
 
               {/* Loyalty summary */}
-              <div className="mt-8 p-5 bg-gradient-to-r from-pink-950/60 via-purple-950/40 to-slate-900 border border-pink-500/30 rounded-2xl flex items-center justify-between">
+              <div className="mt-8 p-5 bg-gradient-to-r from-pink-100/80 via-rose-100/50 to-amber-100/80 border border-pink-200 rounded-2xl flex items-center justify-between">
                 <div>
-                  <div className="flex items-center gap-2 text-amber-300 text-xs font-bold">
+                  <div className="flex items-center gap-2 text-amber-700 text-xs font-bold">
                     <Sparkles className="w-4 h-4" /> Luxe Rewards Club
                   </div>
-                  <h4 className="text-lg font-serif font-bold text-white mt-1">
+                  <h4 className="text-lg font-serif font-bold text-slate-900 mt-1">
                     {luxePoints} Available Luxe Points
                   </h4>
-                  <p className="text-xs text-slate-400">
-                    Redeem ₹200 OFF on any manicure, bridal package, or nail art session with code <span className="font-mono text-pink-300 font-bold">LUXEUMA</span>.
+                  <p className="text-xs text-slate-600">
+                    Redeem ₹200 OFF on any manicure, bridal package, or nail art session with code <span className="font-mono text-pink-600 font-bold">LUXEUMA</span>.
                   </p>
                 </div>
                 <Button
                   onClick={() => navigate('/book')}
-                  className="bg-pink-600 hover:bg-pink-700 text-white rounded-xl text-xs font-bold px-4"
+                  className="bg-pink-600 hover:bg-pink-700 text-white rounded-xl text-xs font-bold px-4 shadow-md shadow-pink-600/20"
                 >
                   Redeem
                 </Button>
@@ -1358,61 +1358,61 @@ export function MyBookingsPage() {
       {/* ================= MODAL: VIEW DETAILS ================= */}
       <AnimatePresence>
         {selectedBookingDetails && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-slate-900 border border-pink-500/30 rounded-3xl max-w-lg w-full p-6 sm:p-8 relative shadow-2xl overflow-hidden"
+              className="bg-white/95 border border-white/90 rounded-3xl max-w-lg w-full p-6 sm:p-8 relative shadow-2xl overflow-hidden text-slate-800"
             >
-              <div className="flex items-center justify-between pb-4 border-b border-pink-500/20">
+              <div className="flex items-center justify-between pb-4 border-b border-pink-100">
                 <div>
-                  <span className="text-xs text-pink-400 font-bold font-mono">
+                  <span className="text-xs text-pink-600 font-bold font-mono">
                     {selectedBookingDetails.id}
                   </span>
-                  <h3 className="text-xl font-serif font-bold text-white">
+                  <h3 className="text-xl font-serif font-bold text-slate-900">
                     Appointment Details
                   </h3>
                 </div>
                 <button
                   onClick={() => setSelectedBookingDetails(null)}
-                  className="p-2 text-slate-400 hover:text-white rounded-full hover:bg-white/10"
+                  className="p-2 text-slate-400 hover:text-slate-800 rounded-full hover:bg-rose-50"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="space-y-4 my-6 text-xs sm:text-sm text-slate-300">
-                <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
-                  <span className="text-slate-400">Status:</span>
+              <div className="space-y-4 my-6 text-xs sm:text-sm text-slate-700">
+                <div className="p-3.5 rounded-2xl bg-rose-50/50 border border-pink-100 flex items-center justify-between">
+                  <span className="text-slate-500">Status:</span>
                   {getStatusBadge(selectedBookingDetails.status)}
                 </div>
 
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Treatment(s):</span>
-                    <span className="font-bold text-white text-right">
+                    <span className="text-slate-500">Treatment(s):</span>
+                    <span className="font-bold text-slate-900 text-right">
                       {selectedBookingDetails.service_names.join(', ')}
                     </span>
                   </div>
 
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Date & Slot:</span>
-                    <span className="text-white font-medium">
+                    <span className="text-slate-500">Date & Slot:</span>
+                    <span className="text-slate-900 font-medium">
                       {selectedBookingDetails.booking_date} at {selectedBookingDetails.booking_time}
                     </span>
                   </div>
 
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Assigned Specialist:</span>
-                    <span className="text-amber-300 font-medium">
+                    <span className="text-slate-500">Assigned Specialist:</span>
+                    <span className="text-amber-700 font-medium">
                       {selectedBookingDetails.technician || 'Uma Sharma'}
                     </span>
                   </div>
 
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Service Location:</span>
-                    <span className="text-white font-medium capitalize">
+                    <span className="text-slate-500">Service Location:</span>
+                    <span className="text-slate-900 font-medium capitalize">
                       {selectedBookingDetails.visit_type === 'home'
                         ? 'Doorstep Home Service'
                         : 'Jaipur Atelier Studio'}
@@ -1421,26 +1421,26 @@ export function MyBookingsPage() {
 
                   {selectedBookingDetails.notes && (
                     <div className="pt-2">
-                      <span className="text-slate-400 block mb-1">Client Inspo / Notes:</span>
-                      <p className="p-2.5 rounded-xl bg-slate-950 text-slate-300 text-xs italic">
+                      <span className="text-slate-500 block mb-1">Client Inspo / Notes:</span>
+                      <p className="p-2.5 rounded-xl bg-rose-50 text-slate-700 text-xs italic border border-pink-100">
                         "{selectedBookingDetails.notes}"
                       </p>
                     </div>
                   )}
                 </div>
 
-                <div className="pt-4 border-t border-pink-500/20 space-y-1.5">
-                  <div className="flex justify-between text-slate-400">
+                <div className="pt-4 border-t border-pink-100 space-y-1.5">
+                  <div className="flex justify-between text-slate-500">
                     <span>Total Amount:</span>
-                    <span className="text-white font-serif font-bold text-base">
+                    <span className="text-slate-900 font-serif font-bold text-base">
                       ₹{selectedBookingDetails.total_price.toLocaleString('en-IN')}
                     </span>
                   </div>
-                  <div className="flex justify-between text-xs text-emerald-400">
+                  <div className="flex justify-between text-xs text-emerald-600 font-medium">
                     <span>Advance Deposit (Paid):</span>
                     <span>₹{selectedBookingDetails.deposit_paid || 200}</span>
                   </div>
-                  <div className="flex justify-between text-xs text-slate-400">
+                  <div className="flex justify-between text-xs text-slate-500">
                     <span>Balance at Atelier:</span>
                     <span>₹{Math.max(0, selectedBookingDetails.total_price - (selectedBookingDetails.deposit_paid || 200))}</span>
                   </div>
@@ -1456,13 +1456,13 @@ export function MyBookingsPage() {
                     });
                     setSelectedBookingDetails(null);
                   }}
-                  className="flex-1 bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-700 hover:to-rose-600 text-white rounded-xl text-xs font-bold gap-2"
+                  className="flex-1 bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-700 hover:to-rose-600 text-white rounded-xl text-xs font-bold gap-2 shadow-md shadow-pink-600/20"
                 >
                   <Download className="w-4 h-4" /> Download PDF Pass
                 </Button>
                 <Button
                   onClick={() => setSelectedBookingDetails(null)}
-                  className="bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold px-4"
+                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold px-4"
                 >
                   Close
                 </Button>
@@ -1475,48 +1475,48 @@ export function MyBookingsPage() {
       {/* ================= MODAL: RESCHEDULE ================= */}
       <AnimatePresence>
         {bookingToReschedule && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-slate-900 border border-pink-500/30 rounded-3xl max-w-md w-full p-6 sm:p-8 relative shadow-2xl"
+              className="bg-white/95 border border-white/90 rounded-3xl max-w-md w-full p-6 sm:p-8 relative shadow-2xl text-slate-800"
             >
-              <div className="flex items-center justify-between pb-4 border-b border-pink-500/20">
-                <h3 className="text-lg font-serif font-bold text-white flex items-center gap-2">
-                  <RotateCcw className="w-4 h-4 text-pink-400" /> Reschedule Appointment
+              <div className="flex items-center justify-between pb-4 border-b border-pink-100">
+                <h3 className="text-lg font-serif font-bold text-slate-900 flex items-center gap-2">
+                  <RotateCcw className="w-4 h-4 text-pink-600" /> Reschedule Appointment
                 </h3>
                 <button
                   onClick={() => setBookingToReschedule(null)}
-                  className="p-1.5 text-slate-400 hover:text-white rounded-full"
+                  className="p-1.5 text-slate-400 hover:text-slate-800 rounded-full hover:bg-rose-50"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               <div className="space-y-4 my-5">
-                <p className="text-xs text-slate-300">
+                <p className="text-xs text-slate-600">
                   Select a new date and time slot for booking{' '}
-                  <span className="font-mono text-pink-300 font-bold">{bookingToReschedule.id}</span>.
+                  <span className="font-mono text-pink-600 font-bold">{bookingToReschedule.id}</span>.
                 </p>
 
                 <div>
-                  <Label className="text-xs text-slate-300">Pick New Date</Label>
+                  <Label className="text-xs text-slate-700">Pick New Date</Label>
                   <Input
                     type="date"
                     min={new Date().toISOString().split('T')[0]}
                     value={newDate}
                     onChange={(e) => setNewDate(e.target.value)}
-                    className="mt-1 bg-slate-950 border-pink-500/30 text-white rounded-xl"
+                    className="mt-1 bg-white border-pink-200 text-slate-900 rounded-xl"
                   />
                 </div>
 
                 <div>
-                  <Label className="text-xs text-slate-300">Pick Time Slot</Label>
+                  <Label className="text-xs text-slate-700">Pick Time Slot</Label>
                   <select
                     value={newTime}
                     onChange={(e) => setNewTime(e.target.value)}
-                    className="mt-1 w-full bg-slate-950 border border-pink-500/30 text-white rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
+                    className="mt-1 w-full bg-white border border-pink-200 text-slate-900 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
                   >
                     <option value="10:00 AM">10:00 AM (Morning)</option>
                     <option value="11:00 AM">11:00 AM (Morning)</option>
@@ -1533,13 +1533,13 @@ export function MyBookingsPage() {
               <div className="flex items-center gap-2">
                 <Button
                   onClick={handleConfirmReschedule}
-                  className="flex-1 bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-700 hover:to-rose-600 text-white rounded-xl text-xs font-bold py-2.5"
+                  className="flex-1 bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-700 hover:to-rose-600 text-white rounded-xl text-xs font-bold py-2.5 shadow-md shadow-pink-600/20"
                 >
                   Confirm New Slot
                 </Button>
                 <Button
                   onClick={() => setBookingToReschedule(null)}
-                  className="bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold px-4"
+                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold px-4"
                 >
                   Cancel
                 </Button>
@@ -1552,34 +1552,34 @@ export function MyBookingsPage() {
       {/* ================= MODAL: CANCEL ================= */}
       <AnimatePresence>
         {bookingToCancel && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-slate-900 border border-rose-500/30 rounded-3xl max-w-md w-full p-6 relative shadow-2xl"
+              className="bg-white/95 border border-white/90 rounded-3xl max-w-md w-full p-6 relative shadow-2xl text-slate-800"
             >
-              <div className="w-12 h-12 rounded-full bg-rose-500/20 border border-rose-500/30 flex items-center justify-center mx-auto text-rose-400 mb-3">
+              <div className="w-12 h-12 rounded-full bg-rose-100 border border-rose-200 flex items-center justify-center mx-auto text-rose-600 mb-3">
                 <AlertCircle className="w-6 h-6" />
               </div>
 
-              <h3 className="text-lg font-serif font-bold text-white text-center">
+              <h3 className="text-lg font-serif font-bold text-slate-900 text-center">
                 Cancel Appointment?
               </h3>
-              <p className="text-xs text-slate-300 text-center mt-2 mb-5">
-                Are you sure you want to cancel booking <span className="font-mono text-pink-300 font-bold">{bookingToCancel.id}</span>? Your ₹200 deposit will remain safely credited to your Luxe wallet.
+              <p className="text-xs text-slate-600 text-center mt-2 mb-5">
+                Are you sure you want to cancel booking <span className="font-mono text-pink-600 font-bold">{bookingToCancel.id}</span>? Your ₹200 deposit will remain safely credited to your Luxe wallet.
               </p>
 
               <div className="flex items-center gap-2">
                 <Button
                   onClick={handleConfirmCancel}
-                  className="flex-1 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold py-2.5"
+                  className="flex-1 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold py-2.5 shadow-md shadow-rose-600/20"
                 >
                   Yes, Cancel Appointment
                 </Button>
                 <Button
                   onClick={() => setBookingToCancel(null)}
-                  className="bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold px-4"
+                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold px-4"
                 >
                   Keep Booking
                 </Button>

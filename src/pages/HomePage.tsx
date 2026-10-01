@@ -14,6 +14,7 @@ import { PromotionsSection } from '@/components/features/PromotionsSection';
 import { ServiceImage } from '@/components/features/ServiceImage';
 import { useServiceReviews } from '@/hooks/useServiceReviews';
 import { ServiceReviewModal } from '@/components/features/ServiceReviewModal';
+import { SectionDivider } from '@/components/common/SectionDivider';
 
 const CATEGORIES = [
   { id: 'all', label: 'All Services', value: 'all' },
@@ -225,9 +226,15 @@ export function HomePage() {
   });
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen relative animated-mesh-gradient">
       {/* Hero Section — Cinematic Ambient Background Video & Fallback Image */}
-      <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <motion.section
+        ref={heroRef}
+        initial={{ opacity: 0, y: 30, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 1.2, ease: [0.19, 1, 0.22, 1] }}
+        className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      >
         {/* Background Video & Fallback Image Layer */}
         <div className="absolute inset-0 z-0 overflow-hidden bg-black">
           {/* HTML5 Auto-playing Muted Looping Video */}
@@ -272,35 +279,35 @@ export function HomePage() {
               {/* Left Column: Heading, Value Prop, CTAs & Trust Badges */}
               <div className="lg:col-span-7 text-center lg:text-left space-y-6 sm:space-y-8">
                 {/* Badge & Video Stream Switcher */}
-                <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3">
+                <div className="flex flex-col items-center lg:items-start gap-3 w-full">
                   <div
-                    className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-md border border-white/25 px-4 py-2 rounded-full shadow-lg text-xs sm:text-sm font-semibold text-white tracking-wide"
+                    className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-md border border-white/25 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full shadow-lg text-[11px] sm:text-sm font-semibold text-white tracking-wide text-center"
                     role="note"
                     aria-label="Premium nail care experience badge"
                   >
-                    <Sparkles className="w-4 h-4 text-pink-300" aria-hidden="true" />
+                    <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-pink-300 shrink-0" aria-hidden="true" />
                     <span>Beautiful Nails &amp; Friendly Beauty Care</span>
                   </div>
 
                   {/* Video Theme Selector Pills & Play/Pause Controls */}
-                  <div className="flex items-center gap-1.5 bg-black/50 backdrop-blur-md border border-white/20 p-1.5 rounded-full text-xs">
+                  <div className="flex items-center gap-1.5 bg-black/50 backdrop-blur-md border border-white/20 p-1.5 rounded-full text-xs overflow-x-auto max-w-full scrollbar-none">
                     <button
                       type="button"
                       onClick={toggleVideoPlayback}
-                      className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all"
+                      className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all shrink-0"
                       title={isPlaying ? 'Pause Background Video' : 'Play Background Video'}
                       aria-label={isPlaying ? 'Pause background video' : 'Play background video'}
                     >
                       {isPlaying ? <Pause className="w-3.5 h-3.5 text-pink-300" /> : <Play className="w-3.5 h-3.5 text-pink-300 fill-pink-300" />}
                     </button>
 
-                    <div className="h-3.5 w-px bg-white/20 my-auto" />
+                    <div className="h-3.5 w-px bg-white/20 my-auto shrink-0" />
 
                     {HERO_THEMES.map((theme, idx) => (
                       <button
                         key={theme.id}
                         onClick={() => setSelectedHeroTheme(idx)}
-                        className={`px-3 py-1 rounded-full text-[11px] font-bold transition-all flex items-center gap-1.5 ${
+                        className={`px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-[11px] font-bold transition-all flex items-center gap-1 shrink-0 ${
                           selectedHeroTheme === idx
                             ? 'bg-gradient-to-r from-pink-500 to-rose-400 text-white shadow-md scale-105'
                             : 'text-white/70 hover:text-white hover:bg-white/10'
@@ -315,13 +322,13 @@ export function HomePage() {
                 </div>
 
                 {/* H1 — Primary page heading, keyword-rich */}
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight text-white drop-shadow-lg">
+                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold leading-tight text-white drop-shadow-lg px-2 sm:px-0">
                   Nails by{' '}
                   <span className="bg-gradient-to-r from-pink-300 via-rose-200 to-orange-300 bg-clip-text text-transparent">
                     Uma
                   </span>
                   {' '}—{' '}
-                  <span className="text-2xl sm:text-3xl lg:text-4xl font-light text-white/90 block mt-2 drop-shadow-md">
+                  <span className="text-xl sm:text-3xl lg:text-4xl font-light text-white/90 block mt-2 drop-shadow-md">
                     Your Favourite Beauty &amp; Nail Salon in Jaipur
                   </span>
                 </h1>
@@ -439,7 +446,9 @@ export function HomePage() {
           <div className="w-0.5 h-8 bg-white/40 rounded-full" />
           <p className="text-white/50 text-xs font-medium tracking-widest uppercase">Scroll</p>
         </div>
-      </section>
+      </motion.section>
+
+      <SectionDivider icon={<Crown className="w-4 h-4 text-amber-500" />} />
 
       {/* ── 2. QUICK CATEGORY BAR & POPULAR SERVICES SECTION ───────────── */}
       <section className="py-12 bg-card border-b shadow-xs relative z-20" id="categories">
@@ -557,7 +566,7 @@ export function HomePage() {
               </Button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="flex md:grid overflow-x-auto md:overflow-x-visible snap-x snap-mandatory scrollbar-none gap-4 md:gap-8 pb-4 -mx-4 px-4 md:mx-0 md:px-0">
               {filteredServices.map((service, idx) => {
                 const rating = getServiceRating(service.id, service.name);
                 return (
@@ -567,7 +576,7 @@ export function HomePage() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: idx * 0.08 }}
-                    className="glass-card rounded-3xl overflow-hidden hover:shadow-2xl hover:shadow-pink-500/15 transition-all duration-400 group cursor-pointer flex flex-col justify-between border border-white/80 dark:border-white/10 hover:border-pink-300/80 bg-white/75 dark:bg-slate-900/75 backdrop-blur-xl"
+                    className="glass-card rounded-3xl overflow-hidden hover:shadow-2xl hover:shadow-pink-500/15 transition-all duration-400 group cursor-pointer flex flex-col justify-between border border-white/80 dark:border-white/10 hover:border-pink-300/80 bg-white/75 dark:bg-slate-900/75 backdrop-blur-xl w-[82vw] sm:w-[350px] md:w-auto shrink-0 snap-start"
                     onClick={() => navigate('/book')}
                   >
                     <div>
@@ -670,73 +679,75 @@ export function HomePage() {
       {/* ── 4. TRENDING REELS & CLIENT TRANSFORMATIONS (GALLERY) ───────── */}
       <ReelsSection />
 
+      <SectionDivider icon={<ShieldCheck className="w-4 h-4 text-emerald-600" />} />
+
       {/* ── 5. OUR HYGIENE & SAFETY PROMISE SECTION ────────────────────── */}
       <motion.section
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-        className="bg-gradient-to-r from-pink-50/60 via-white to-amber-50/50 py-16 sm:py-20 border-y border-pink-100 dark:border-pink-900/30"
+        initial={{ opacity: 0, y: 40, scale: 0.98 }}
+        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+        viewport={{ once: true, margin: '-80px' }}
+        transition={{ duration: 1.2, ease: [0.19, 1, 0.22, 1] }}
+        className="bg-gradient-to-r from-pink-50/60 via-white to-amber-50/50 py-20 sm:py-24 border-y border-pink-100 dark:border-pink-900/30 relative"
         id="hygiene-promise"
       >
         <div className="container mx-auto max-w-6xl px-4">
-          <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
+          <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
             <span className="text-xs uppercase font-bold tracking-widest text-pink-600 dark:text-pink-400 block">
               OUR HYGIENE &amp; SAFETY PROMISE
             </span>
-            <h2 className="text-3xl sm:text-4xl font-bold font-serif text-slate-900 dark:text-white">
+            <h2 className="section-title-app text-slate-900 dark:text-white">
               100% Clean, Safe &amp; Hygienic Beauty Care
             </h2>
-            <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-light">
+            <p className="text-base text-slate-600 dark:text-slate-300 leading-relaxed font-light">
               Your health and safety come first. We use 100% sanitized tools and safe products so you can relax without any worry.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 sm:gap-8">
+          <div className="flex md:grid overflow-x-auto md:overflow-x-visible snap-x snap-mandatory scrollbar-none gap-4 md:gap-8 pb-4 -mx-4 px-4 md:mx-0 md:px-0">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="glass-card p-6 sm:p-8 rounded-3xl border border-white/80 dark:border-white/10 shadow-lg bg-white/70 dark:bg-slate-900/80 backdrop-blur-xl transition-all duration-400 hover:-translate-y-2 hover:shadow-2xl"
+              transition={{ duration: 0.6, delay: 0.15 }}
+              className="glass-card p-8 rounded-3xl border border-white/80 dark:border-white/10 shadow-xl bg-white/75 dark:bg-slate-900/75 backdrop-blur-xl transition-all duration-400 hover:-translate-y-2.5 hover:scale-[1.03] w-[82vw] sm:w-[350px] md:w-auto shrink-0 snap-start"
             >
-              <div className="w-12 h-12 rounded-2xl bg-pink-100 dark:bg-pink-950/60 text-pink-600 dark:text-pink-400 flex items-center justify-center text-xl font-bold mb-5 shadow-xs">
-                <ShieldCheck className="w-6 h-6" />
+              <div className="w-14 h-14 rounded-2xl bg-pink-100 dark:bg-pink-950/60 text-pink-600 dark:text-pink-400 flex items-center justify-center text-xl font-bold mb-6 shadow-md shimmer-icon-glow">
+                <ShieldCheck className="w-7 h-7" />
               </div>
-              <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-3">100% Sanitized &amp; Clean Tools</h3>
-              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              <h3 className="text-xl font-serif font-bold text-slate-900 dark:text-white mb-3">100% Sanitized &amp; Clean Tools</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-light">
                 All metal tools are cleaned and sterilized in high-temperature machines, then opened from fresh sealed pouches right in front of you.
               </p>
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="glass-card p-6 sm:p-8 rounded-3xl border border-white/80 dark:border-white/10 shadow-lg bg-white/70 dark:bg-slate-900/80 backdrop-blur-xl transition-all duration-400 hover:-translate-y-2 hover:shadow-2xl"
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="glass-card p-8 rounded-3xl border border-white/80 dark:border-white/10 shadow-xl bg-white/75 dark:bg-slate-900/75 backdrop-blur-xl transition-all duration-400 hover:-translate-y-2.5 hover:scale-[1.03] w-[82vw] sm:w-[350px] md:w-auto shrink-0 snap-start"
             >
-              <div className="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl font-bold mb-5 shadow-xs">
-                <Leaf className="w-6 h-6" />
+              <div className="w-14 h-14 rounded-2xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl font-bold mb-6 shadow-md shimmer-icon-glow">
+                <Leaf className="w-7 h-7" />
               </div>
-              <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-3">Pure &amp; Safe Henna</h3>
-              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              <h3 className="text-xl font-serif font-bold text-slate-900 dark:text-white mb-3">Pure &amp; Safe Henna</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-light">
                 No harmful chemicals or dyes. We use pure Rajasthani henna mixed with natural oils for safe, deep dark mehndi color.
               </p>
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="glass-card p-6 sm:p-8 rounded-3xl border border-white/80 dark:border-white/10 shadow-lg bg-white/70 dark:bg-slate-900/80 backdrop-blur-xl transition-all duration-400 hover:-translate-y-2 hover:shadow-2xl"
+              transition={{ duration: 0.6, delay: 0.45 }}
+              className="glass-card p-8 rounded-3xl border border-white/80 dark:border-white/10 shadow-xl bg-white/75 dark:bg-slate-900/75 backdrop-blur-xl transition-all duration-400 hover:-translate-y-2.5 hover:scale-[1.03] w-[82vw] sm:w-[350px] md:w-auto shrink-0 snap-start"
             >
-              <div className="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl font-bold mb-5 shadow-xs">
-                <Gem className="w-6 h-6" />
+              <div className="w-14 h-14 rounded-2xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl font-bold mb-6 shadow-md shimmer-icon-glow">
+                <Gem className="w-7 h-7" />
               </div>
-              <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-3">Safe &amp; Chemical-Free Gels</h3>
-              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              <h3 className="text-xl font-serif font-bold text-slate-900 dark:text-white mb-3">Safe &amp; Chemical-Free Gels</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-light">
                 We use high-quality, branded gel polishes that protect your natural nails from damage, thinning, or yellowing.
               </p>
             </motion.div>
@@ -744,29 +755,31 @@ export function HomePage() {
         </div>
       </motion.section>
 
+      <SectionDivider icon={<Star className="w-4 h-4 text-amber-500 fill-amber-400" />} />
+
       {/* ── 6. CUSTOMER REVIEWS & TESTIMONIALS SECTION ──────────────────── */}
       {reviews.length > 0 && (
         <motion.section
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="py-16 sm:py-20 bg-gradient-to-b from-background via-rose-50/15 to-background"
+          initial={{ opacity: 0, y: 40, scale: 0.98 }}
+          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+          viewport={{ once: true, margin: '-80px' }}
+          transition={{ duration: 1.2, ease: [0.19, 1, 0.22, 1] }}
+          className="py-20 sm:py-24 bg-gradient-to-b from-background via-rose-50/20 to-background relative"
           id="reviews"
         >
           <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <div className="inline-flex items-center gap-2 bg-pink-100/80 dark:bg-pink-950/60 px-4 py-2 rounded-full mb-4 shadow-xs" aria-hidden="true">
-                <Star className="w-4 h-4 text-primary fill-primary" />
-                <span className="text-sm font-semibold text-primary">Customer Reviews</span>
+            <div className="text-center mb-14 space-y-3">
+              <div className="inline-flex items-center gap-2 bg-pink-100/80 dark:bg-pink-950/60 px-4 py-2 rounded-full shadow-xs" aria-hidden="true">
+                <Star className="w-4 h-4 text-primary fill-primary shimmer-icon-glow" />
+                <span className="text-xs sm:text-sm font-bold tracking-wider text-primary uppercase">Customer Reviews</span>
               </div>
-              <h2 className="text-3xl sm:text-4xl font-bold font-serif mb-4">What Our Clients Say About Our Nail Salon</h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto font-light">
+              <h2 className="section-title-app text-foreground">What Our Clients Say About Our Nail Salon</h2>
+              <p className="text-base text-muted-foreground max-w-2xl mx-auto font-light leading-relaxed">
                 Real experiences from clients who trusted Nails by Uma for professional manicure, nail art &amp; beauty services
               </p>
             </div>
 
-            <div className="mb-8">
+            <div className="mb-10">
               <ReviewsCarousel reviews={reviews} autoPlayInterval={5000} />
             </div>
 
@@ -774,7 +787,7 @@ export function HomePage() {
               <Button
                 onClick={() => navigate('/reviews')}
                 variant="outline"
-                className="gap-2 group border-pink-200 hover:bg-pink-50 rounded-full px-6 py-2.5 font-bold"
+                className="gap-2 group border-pink-200 hover:bg-pink-50 rounded-full px-8 py-3 font-bold text-sm"
               >
                 <MessageSquare className="w-4 h-4" />
                 View All Reviews &amp; Share Yours
@@ -787,10 +800,10 @@ export function HomePage() {
 
       {/* ── 7. ABOUT NAILS BY UMA & EXPERT STAFF SECTION ───────────────── */}
       <motion.section
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
+        initial={{ opacity: 0, y: 40, scale: 0.98 }}
+        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+        viewport={{ once: true, margin: '-80px' }}
+        transition={{ duration: 1.2, ease: [0.19, 1, 0.22, 1] }}
         className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white via-rose-50/30 to-white relative overflow-hidden"
         id="why-choose-us"
       >
@@ -805,10 +818,10 @@ export function HomePage() {
             <div className="lg:col-span-5 space-y-8 text-left">
               <div>
                 <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-pink-100/80 border border-pink-200/60 text-pink-700 text-xs font-bold uppercase tracking-widest mb-4">
-                  <Sparkles className="w-3.5 h-3.5 text-pink-600" /> About Nails by Uma
+                  <Sparkles className="w-3.5 h-3.5 text-pink-600 shimmer-icon-glow" /> About Nails by Uma
                 </span>
                 
-                <h2 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold tracking-tight text-slate-900 leading-[1.1]">
+                <h2 className="section-title-app text-slate-900 leading-[1.1]">
                   Why Choose <br />
                   <span className="bg-gradient-to-r from-pink-600 via-rose-500 to-amber-600 bg-clip-text text-transparent">
                     Nails by Uma
@@ -816,7 +829,7 @@ export function HomePage() {
                 </h2>
               </div>
 
-              <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
+              <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-light">
                 We combine years of professional experience, 100% sterilized clean tools, personal attention, and warm Indian hospitality so you feel completely pampered.
               </p>
 
@@ -824,12 +837,11 @@ export function HomePage() {
               <div className="space-y-3 pt-2">
                 <Button
                   onClick={() => navigate('/book')}
-                  className="group relative overflow-hidden bg-gradient-to-r from-pink-600 via-rose-500 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white rounded-2xl shadow-xl shadow-pink-500/20 px-8 py-6 text-sm sm:text-base font-bold transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-pink-500/30 active:scale-95"
+                  className="group relative overflow-hidden bg-gradient-to-r from-pink-600 via-rose-500 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white rounded-2xl shadow-xl shadow-pink-500/20 px-8 py-6 text-sm sm:text-base font-bold transition-all duration-300 hover:scale-[1.02] active:scale-95 btn-pulse-app"
                 >
                   <span className="relative z-10 flex items-center gap-3">
                     Experience the Difference <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                 </Button>
 
                 <p className="text-xs text-slate-500 dark:text-slate-400 font-medium italic">
@@ -874,34 +886,34 @@ export function HomePage() {
               {/* Organic Floating Glass Badges */}
               <div className="absolute -top-6 -left-4 sm:-top-8 sm:-left-6 z-20 animate-float-subtle">
                 <div className="glass-chip px-4 py-2 rounded-full text-xs font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 shadow-lg border border-white/80 dark:border-white/20">
-                  <Sparkles className="w-3.5 h-3.5 text-pink-500" />
+                  <Sparkles className="w-3.5 h-3.5 text-pink-500 shimmer-icon-glow" />
                   <span>Premium Care</span>
                 </div>
               </div>
 
               <div className="absolute -top-4 -right-2 sm:-top-6 sm:-right-4 z-20 animate-float-slow">
                 <div className="glass-chip px-4 py-2 rounded-full text-xs font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 shadow-lg border border-white/80 dark:border-white/20">
-                  <Crown className="w-3.5 h-3.5 text-amber-500" />
+                  <Crown className="w-3.5 h-3.5 text-amber-500 shimmer-icon-glow" />
                   <span>Certified Professionals</span>
                 </div>
               </div>
 
               <div className="absolute -bottom-6 -right-2 sm:-bottom-8 sm:-right-6 z-20 animate-float-subtle">
                 <div className="glass-chip px-4 py-2 rounded-full text-xs font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 shadow-lg border border-white/80 dark:border-white/20">
-                  <Award className="w-3.5 h-3.5 text-rose-500" />
+                  <Award className="w-3.5 h-3.5 text-rose-500 shimmer-icon-glow" />
                   <span>Luxury Experience</span>
                 </div>
               </div>
 
               {/* MAIN CENTER GLASS PANEL */}
-              <div className="group relative bg-white/85 dark:bg-slate-900/80 backdrop-blur-2xl border border-white/90 dark:border-white/15 rounded-3xl p-6 sm:p-10 lg:p-12 shadow-2xl shadow-pink-500/10 transition-all duration-500 hover:-translate-y-2 hover:shadow-pink-500/20 hover:border-pink-300/60">
+              <div className="group relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl border border-white/90 dark:border-white/15 rounded-[32px] p-6 sm:p-10 lg:p-12 shadow-2xl shadow-pink-500/10 transition-all duration-500 hover:-translate-y-2 hover:shadow-pink-500/20">
                 
                 {/* Panel Header */}
                 <div className="border-b border-rose-100 dark:border-white/10 pb-6 mb-8">
                   <h3 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900 dark:text-white flex items-center gap-3">
                     Your Beauty, Our Special Care.
                   </h3>
-                  <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                  <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 font-light">
                     Our simple promise: great beauty care, total hygiene, and a friendly smile every time.
                   </p>
                 </div>
@@ -923,7 +935,7 @@ export function HomePage() {
                         </h4>
                         <Award className="w-4 h-4 text-pink-500 opacity-70 group-hover/item:opacity-100 transition-opacity" />
                       </div>
-                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1 leading-relaxed font-normal">
+                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1 leading-relaxed font-light">
                         Professional nail artists and beauty specialists with years of hands-on experience in Russian techniques &amp; 3D extensions.
                       </p>
                     </div>
@@ -941,7 +953,7 @@ export function HomePage() {
                         </h4>
                         <ShieldCheck className="w-4 h-4 text-rose-500 opacity-70 group-hover/item:opacity-100 transition-opacity" />
                       </div>
-                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1 leading-relaxed font-normal">
+                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1 leading-relaxed font-light">
                         Sterilized tools, single-use buffers, clean workstations, safe high-quality polishes, and strict hygiene practices.
                       </p>
                     </div>
@@ -959,7 +971,7 @@ export function HomePage() {
                         </h4>
                         <Heart className="w-4 h-4 text-amber-500 opacity-70 group-hover/item:opacity-100 transition-opacity" />
                       </div>
-                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1 leading-relaxed font-normal">
+                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1 leading-relaxed font-light">
                         Every appointment is customized according to your unique nail health, style preference, comfort, and aesthetic vision.
                       </p>
                     </div>
@@ -977,7 +989,7 @@ export function HomePage() {
                         </h4>
                         <Clock className="w-4 h-4 text-pink-600 opacity-70 group-hover/item:opacity-100 transition-opacity" />
                       </div>
-                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1 leading-relaxed font-normal">
+                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1 leading-relaxed font-light">
                         Thoughtfully managed schedule slots with dedicated artists, zero waiting delays, and smooth, attentive salon hospitality.
                       </p>
                     </div>
@@ -993,62 +1005,62 @@ export function HomePage() {
 
       {/* Signature Luxury Experience Spotlight */}
       <motion.section
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-        className="py-16 px-4 bg-gradient-to-b from-muted/30 to-background overflow-hidden"
+        initial={{ opacity: 0, y: 40, scale: 0.98 }}
+        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+        viewport={{ once: true, margin: '-80px' }}
+        transition={{ duration: 1.2, ease: [0.19, 1, 0.22, 1] }}
+        className="py-16 px-4 bg-gradient-to-b from-muted/30 to-background overflow-hidden relative"
       >
         <div className="container mx-auto max-w-7xl">
-          <div className="group rounded-3xl p-6 sm:p-10 lg:p-12 border border-white/60 shadow-xl bg-white/75 backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-white/90">
+          <div className="group rounded-[32px] p-6 sm:p-10 lg:p-12 border border-white/80 shadow-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl transition-all duration-400 hover:scale-[1.015]">
             <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
               <div className="lg:col-span-7 space-y-6">
                 <div className="inline-flex items-center gap-2 bg-pink-100/80 text-pink-700 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide uppercase transition-transform duration-300 group-hover:scale-105">
-                  <Sparkles className="w-3.5 h-3.5" />
+                  <Sparkles className="w-3.5 h-3.5 shimmer-icon-glow" />
                   Special Care by Expert Artists
                 </div>
-                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-serif leading-tight text-foreground">
+                <h2 className="section-title-app leading-tight text-foreground">
                   The Special{' '}
                   <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                     Nails by Uma
                   </span>{' '}
                   Experience
                 </h2>
-                <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
+                <p className="text-base sm:text-lg text-muted-foreground leading-relaxed font-light">
                   Enjoy total self-care and relaxation. From fresh petal hand soaks
                   and shine-finish gel extensions with pearl &amp; glitter accents, to traditional deep dark
                   Mehndi and glowing organic facial treatments — we give you full attention.
                 </p>
                 <div className="grid grid-cols-2 gap-4 pt-2">
-                  <div className="p-3.5 rounded-xl bg-pink-50/70 border border-pink-100">
-                    <p className="font-semibold text-foreground text-sm flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-primary" /> Petal Hand Soaks
+                  <div className="p-4 rounded-2xl bg-pink-50/80 dark:bg-slate-800/80 border border-pink-100 dark:border-white/10">
+                    <p className="font-semibold text-foreground text-sm flex items-center gap-2 font-serif">
+                      <Sparkles className="w-4 h-4 text-primary shimmer-icon-glow" /> Petal Hand Soaks
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">Nourishing botanicals &amp; cuticle care</p>
+                    <p className="text-xs text-muted-foreground mt-1 font-light">Nourishing botanicals &amp; cuticle care</p>
                   </div>
-                  <div className="p-3.5 rounded-xl bg-pink-50/70 border border-pink-100">
-                    <p className="font-semibold text-foreground text-sm flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-accent" /> Gel &amp; Pearl Art
+                  <div className="p-4 rounded-2xl bg-pink-50/80 dark:bg-slate-800/80 border border-pink-100 dark:border-white/10">
+                    <p className="font-semibold text-foreground text-sm flex items-center gap-2 font-serif">
+                      <Sparkles className="w-4 h-4 text-accent shimmer-icon-glow" /> Gel &amp; Pearl Art
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">Chip-free high-gloss extensions</p>
+                    <p className="text-xs text-muted-foreground mt-1 font-light">Chip-free high-gloss extensions</p>
                   </div>
-                  <div className="p-3.5 rounded-xl bg-pink-50/70 border border-pink-100">
-                    <p className="font-semibold text-foreground text-sm flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-emerald-600" /> Deep Mehndi
+                  <div className="p-4 rounded-2xl bg-pink-50/80 dark:bg-slate-800/80 border border-pink-100 dark:border-white/10">
+                    <p className="font-semibold text-foreground text-sm flex items-center gap-2 font-serif">
+                      <Sparkles className="w-4 h-4 text-emerald-600 shimmer-icon-glow" /> Deep Mehndi
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">100% natural organic henna</p>
+                    <p className="text-xs text-muted-foreground mt-1 font-light">100% natural organic henna</p>
                   </div>
-                  <div className="p-3.5 rounded-xl bg-pink-50/70 border border-pink-100">
-                    <p className="font-semibold text-foreground text-sm flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-pink-600" /> Glow Spa Facials
+                  <div className="p-4 rounded-2xl bg-pink-50/80 dark:bg-slate-800/80 border border-pink-100 dark:border-white/10">
+                    <p className="font-semibold text-foreground text-sm flex items-center gap-2 font-serif">
+                      <Sparkles className="w-4 h-4 text-pink-600 shimmer-icon-glow" /> Glow Spa Facials
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">Clay masks &amp; cucumber soothing</p>
+                    <p className="text-xs text-muted-foreground mt-1 font-light">Clay masks &amp; cucumber soothing</p>
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-4 pt-2">
                   <Button
                     onClick={() => navigate('/book')}
-                    className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white font-semibold rounded-xl shadow-md h-12 px-6"
+                    className="bg-gradient-to-r from-primary to-accent text-white font-bold rounded-2xl shadow-lg h-12 px-7 btn-pulse-app"
                   >
                     <Calendar className="w-4 h-4 mr-2" />
                     Book Special Session
@@ -1056,14 +1068,14 @@ export function HomePage() {
                   <Button
                     variant="outline"
                     onClick={() => navigate('/packages')}
-                    className="border-pink-200 hover:bg-pink-50 text-foreground font-semibold rounded-xl h-12 px-6"
+                    className="border-pink-200 hover:bg-pink-50 text-foreground font-semibold rounded-2xl h-12 px-7"
                   >
                     View All Packages
                   </Button>
                 </div>
               </div>
               <div className="lg:col-span-5">
-                <div className="relative group overflow-hidden rounded-2xl shadow-2xl border-2 border-pink-100">
+                <div className="relative group overflow-hidden rounded-3xl shadow-2xl border-2 border-pink-100">
                   <img
                     src="/src/assets/images/luxenails_spa_showcase_1790676040946.jpg"
                     alt="LuxeNails by Uma luxury copper tray spa setup with manicured nails, petal soak, mehndi art, and facial care"
@@ -1084,11 +1096,11 @@ export function HomePage() {
 
       {/* ── 8. STATS & FINAL CTA SECTION ───────────────────────────────── */}
       <motion.section
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-        className="py-16 px-4 bg-gradient-to-r from-primary/5 to-accent/5"
+        initial={{ opacity: 0, y: 40, scale: 0.98 }}
+        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+        viewport={{ once: true, margin: '-80px' }}
+        transition={{ duration: 1.2, ease: [0.19, 1, 0.22, 1] }}
+        className="py-16 px-4 bg-gradient-to-r from-primary/5 to-accent/5 relative"
       >
         <div className="container mx-auto max-w-7xl">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
@@ -1099,7 +1111,7 @@ export function HomePage() {
               { value: '4.9★', label: 'Average Rating' },
             ].map((stat, index) => (
               <div key={index}>
-                <p className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
+                <p className="text-4xl md:text-5xl font-extrabold font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
                   {stat.value}
                 </p>
                 <p className="text-muted-foreground font-medium">{stat.label}</p>
@@ -1111,24 +1123,24 @@ export function HomePage() {
 
       {/* CTA Section */}
       <motion.section
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-        className="py-20 px-4 bg-gradient-to-r from-primary/10 to-accent/10"
+        initial={{ opacity: 0, y: 40, scale: 0.98 }}
+        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+        viewport={{ once: true, margin: '-80px' }}
+        transition={{ duration: 1.2, ease: [0.19, 1, 0.22, 1] }}
+        className="py-24 px-4 bg-gradient-to-r from-primary/10 via-rose-100/30 to-accent/10 relative"
       >
         <div className="container mx-auto max-w-4xl text-center">
-          <h2 className="text-4xl md:text-5xl font-bold font-serif mb-4">
+          <h2 className="section-title-app mb-5">
             Book Your Luxury Nail Appointment Today
           </h2>
-          <p className="text-xl text-muted-foreground mb-8 font-light">
+          <p className="text-lg sm:text-xl text-muted-foreground mb-8 font-light leading-relaxed">
             Experience professional manicure, gel nails &amp; nail art at our luxury nail salon — or book a home service
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <Button
               size="lg"
               onClick={() => (window.location.href = '/book')}
-              className="bg-gradient-to-r from-primary to-accent text-white shadow-lg hover:shadow-2xl hover:scale-105 transition-all h-12 px-8 font-bold rounded-xl"
+              className="bg-gradient-to-r from-primary to-accent text-white shadow-xl hover:shadow-2xl hover:scale-105 transition-all h-14 px-9 font-bold rounded-2xl btn-pulse-app"
             >
               <Calendar className="mr-2 h-5 w-5" />
               Book Now
@@ -1137,9 +1149,9 @@ export function HomePage() {
               size="lg"
               variant="outline"
               onClick={() => (window.location.href = '/packages')}
-              className="border-pink-200 hover:bg-pink-50 h-12 px-8 font-bold rounded-xl"
+              className="border-pink-200 hover:bg-pink-50 h-14 px-9 font-bold rounded-2xl"
             >
-              <Sparkles className="mr-2 h-5 w-5" />
+              <Sparkles className="mr-2 h-5 w-5 shimmer-icon-glow" />
               View Packages
             </Button>
           </div>
