@@ -12,6 +12,11 @@ export default defineConfig({
     // Has no effect on `vite build` / production.
     allowedHosts: true,
   },
+  preview: {
+    host: "0.0.0.0",
+    port: 3000,
+    allowedHosts: true,
+  },
   plugins: [
     react(),
   ],

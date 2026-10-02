@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { TenantProvider } from '@/contexts/TenantContext';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
@@ -88,6 +88,7 @@ function App() {
                     <AdminDashboard />
                   </ProtectedRoute>
                 } />
+                <Route path="/admin/customizer" element={<Navigate to="/admin/dashboard?tab=customizer" replace />} />
                 <Route path="/admin/whatsapp-leads" element={
                   <ProtectedRoute allowedRoles={['shop_owner', 'admin', 'owner', 'manager', 'receptionist']}>
                     <WhatsAppLeadsPage />

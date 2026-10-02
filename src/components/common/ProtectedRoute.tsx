@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth, UserRole } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
 
@@ -10,6 +10,7 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const { user, role, loading, isAuthenticated } = useAuth();
+  const location = useLocation();
 
   // During auth initialization, show the loading spinner/state
   if (loading) {
@@ -23,9 +24,22 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
     );
   }
 
-  // Unauthenticated user -> redirect to login
-  if (!isAuthenticated) {
-    return <Navigate to="/admin/login" replace />;
+  // Unauthenticated user -> redirect to login preserving destination
+  if (!isAuthenticated || !user) {
+    const returnUrl = encodeURIComponent(location.pathname + location.search);
+    return <Navigate to={`/admin/login?redirect=${returnUrl}`} replace />;
+  }
+
+  // Special exception: If authenticated user is accessing Customizer & Subdomains,
+  // allow them through directly
+  const searchParams = new URLSearchParams(location.search);
+  const currentTab = searchParams.get('tab');
+  const isCustomizerTab =
+    (location.pathname === '/admin/dashboard' && (currentTab === 'customizer' || currentTab === 'template')) ||
+    location.pathname === '/admin/customizer';
+
+  if (isCustomizerTab) {
+    return <>{children}</>;
   }
 
   // If specific roles are required, check the user's role

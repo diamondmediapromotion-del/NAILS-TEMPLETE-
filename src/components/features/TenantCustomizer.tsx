@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTenant, TenantConfig } from '@/contexts/TenantContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { websiteService } from '@/services/websiteService';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
 import { getSubdomainUrl } from '@/utils/tenant';
+import { PublishedBanner } from '@/components/common/PublishedBanner';
 import {
   Sparkles,
   Globe,
@@ -35,6 +38,7 @@ import {
 
 export function TenantCustomizer() {
   const { tenant, allTenants, createTenant, updateTenantConfig, switchTenant } = useTenant();
+  const { user, profile } = useAuth();
   const { toast } = useToast();
 
   // Onboarding Setup Wizard & Preview Mode States
@@ -119,6 +123,54 @@ export function TenantCustomizer() {
     }
   }, [tenant]);
 
+  // Auto-sync user's website record when authenticated
+  useEffect(() => {
+    if (!user) return;
+
+    let isMounted = true;
+    const loadUserWebsite = async () => {
+      try {
+        const { website } = await websiteService.ensureUserWebsite(user as any, profile);
+        if (website?.slug && isMounted) {
+          const userTenant = allTenants.find((t) => t.id === website.slug);
+          if (userTenant) {
+            setBusinessName(userTenant.business_name);
+            setTagline(userTenant.tagline);
+            setLogoUrl(userTenant.logo_url || '');
+            setBannerImageUrl(userTenant.banner_image_url || '');
+            setPhone(userTenant.phone);
+            setWhatsapp(userTenant.whatsapp);
+            setEmail(userTenant.email);
+            setAddress(userTenant.address);
+            setFacebookUrl(userTenant.facebook_url || '');
+            setInstagramUrl(userTenant.instagram_url || '');
+            setYoutubeUrl(userTenant.youtube_url || '');
+            setAboutHeading(userTenant.about_heading);
+            setAboutText(userTenant.about_text);
+            setAboutImageUrl(userTenant.about_image_url || '');
+            setTimings(userTenant.timings || '');
+            setSeoTitle(userTenant.seo_title);
+            setSeoDescription(userTenant.seo_description);
+            setSeoKeywords(userTenant.seo_keywords || '');
+            setThemeColor(userTenant.theme_color);
+            setIsPublished(userTenant.is_published);
+            setSubdomainSlug(userTenant.id);
+            setCustomDomain(userTenant.custom_domain || '');
+            setDomainStatus(userTenant.domain_status || 'pending');
+            setVerificationStatus(userTenant.verification_status || 'pending_dns');
+          }
+        }
+      } catch (err) {
+        console.warn('TenantCustomizer user website sync notice:', err);
+      }
+    };
+
+    loadUserWebsite();
+    return () => {
+      isMounted = false;
+    };
+  }, [user, profile, allTenants]);
+
   // Mark draft changes on edit
   const markDraft = () => {
     setHasDraftChanges(true);
@@ -197,58 +249,109 @@ export function TenantCustomizer() {
   };
 
   // Subdomain Validation
-  const handleSubdomainChange = (val: string) => {
-    const slug = val.toLowerCase().trim();
+  const handleSubdomainChange = async (val: string) => {
+    const slug = val.toLowerCase().replace(/[^a-z0-9-]/g, '').trim();
     setSubdomainSlug(slug);
     setHasDraftChanges(true);
 
-    // 1. Regex constraints (lowercase, numbers, hyphens only, no spaces)
-    const validRegex = /^[a-z0-9-]+$/;
-    if (slug.length < 3 || slug.length > 30) {
-      setSlugError('Slug length must be between 3 and 30 characters.');
+    // 1. Length & format constraints
+    if (slug.length < 2 || slug.length > 30) {
+      setSlugError('Subdomain length must be between 2 and 30 characters.');
       return;
     }
 
+    const validRegex = /^[a-z0-9][a-z0-9-]*[a-z0-9]$/;
     if (!validRegex.test(slug)) {
-      setSlugError('Only lowercase letters, numbers, and hyphens (-) are allowed.');
+      setSlugError('Subdomain must start and end with a letter/number and contain only lowercase letters, numbers, and hyphens.');
       return;
     }
 
     // 2. Block Reserved Words
-    const RESERVED_WORDS = ['admin', 'api', 'platform', 'www', 'app', 'supabase', 'localhost', 'all'];
+    const RESERVED_WORDS = ['admin', 'api', 'platform', 'www', 'app', 'supabase', 'localhost', 'nailsbyuma', 'all', 'system'];
     if (RESERVED_WORDS.includes(slug)) {
       setSlugError(`"${slug}" is a reserved word and cannot be used.`);
       return;
     }
 
-    // 3. Duplicate Prevention
-    const isTaken = allTenants.some((t) => t.id === slug && t.id !== tenant.id);
-    if (isTaken) {
-      setSlugError('This subdomain slug is already taken by another salon.');
+    // 3. Duplicate Prevention against local state
+    const isTakenLocally = allTenants.some((t) => t.id === slug && t.id !== tenant.id);
+    if (isTakenLocally) {
+      setSlugError('This subdomain is already taken by another salon.');
       return;
+    }
+
+    // 4. Check real-time database availability
+    try {
+      const { data: websiteMatch } = await supabase
+        .from('websites')
+        .select('id, owner_id')
+        .or(`slug.eq.${slug},subdomain.eq.${slug}`)
+        .neq('owner_id', user?.id || '')
+        .maybeSingle();
+
+      if (websiteMatch) {
+        setSlugError('This subdomain is already registered to another website.');
+        return;
+      }
+    } catch {
+      // Continue if offline
     }
 
     setSlugError('');
   };
 
-  // Apply subdomain changes later if valid
+  // Apply subdomain changes: updates existing website record
   const handleApplySubdomain = async () => {
-    if (slugError || subdomainSlug === tenant.id) return;
+    if (slugError || !subdomainSlug || subdomainSlug === tenant.id) return;
 
     setSaving(true);
-    const success = await updateTenantConfig({ id: subdomainSlug });
-    setSaving(false);
+    try {
+      // 1. Double check availability in Supabase
+      const { data: existingWebsites } = await supabase
+        .from('websites')
+        .select('id, owner_id')
+        .or(`slug.eq.${subdomainSlug},subdomain.eq.${subdomainSlug}`)
+        .neq('owner_id', user?.id || '');
 
-    if (success) {
+      if (existingWebsites && existingWebsites.length > 0) {
+        setSlugError('This subdomain is already taken by another salon.');
+        setSaving(false);
+        return;
+      }
+
+      // 2. Update existing website record for current user (never creates a duplicate)
+      if (user?.id) {
+        await supabase
+          .from('websites')
+          .update({
+            slug: subdomainSlug,
+            subdomain: subdomainSlug,
+          })
+          .eq('owner_id', user.id);
+      }
+
+      // 3. Update existing tenant config
+      const success = await updateTenantConfig({ id: subdomainSlug });
+      setSaving(false);
+
+      if (success) {
+        toast({
+          title: 'Subdomain Updated Successfully!',
+          description: `Your public website is now live at: ${getSubdomainUrl(subdomainSlug)}`,
+        });
+        switchTenant(subdomainSlug);
+      } else {
+        toast({
+          title: 'Error Updating Subdomain',
+          description: 'Please try another unique slug.',
+          variant: 'destructive',
+        });
+      }
+    } catch (err: any) {
+      setSaving(false);
       toast({
-        title: 'Subdomain Slug Updated!',
-        description: `Your custom template is now live at: ${subdomainSlug}`,
-      });
-      switchTenant(subdomainSlug);
-    } else {
-      toast({
-        title: 'Error migrating subdomain',
-        description: 'Please try another unique slug.',
+        title: 'Error',
+        description: err.message || 'Failed to update subdomain.',
         variant: 'destructive',
       });
     }
@@ -468,6 +571,11 @@ export function TenantCustomizer() {
           </select>
         </div>
       </div>
+
+      {/* ── LIVE PUBLISHED BANNER (WITH COPY & CLICKABLE LINK) ── */}
+      {isPublished && (
+        <PublishedBanner websiteUrl={getSubdomainUrl(tenant.id)} />
+      )}
 
       {/* ── ONBOARDING SETUP WIZARD MODAL ── */}
       {showWizard && (
@@ -856,21 +964,33 @@ export function TenantCustomizer() {
                 <div className="bg-gradient-to-r from-pink-50 to-amber-50 border p-4 rounded-xl space-y-2">
                   <div className="flex items-center gap-1 text-slate-800 text-xs font-bold">
                     <Compass className="w-4 h-4 text-pink-500" />
-                    Custom Domain Subdomain Rules
+                    White-Label Website Subdomain
                   </div>
                   <p className="text-[10px] text-slate-500 leading-relaxed">
-                    Only lowercase letters, numbers, and hyphens allowed. Reserved words blocked. Change your subdomain URL below:
+                    Choose your salon's public website URL. Only lowercase letters, numbers, and hyphens are allowed.
                   </p>
                 </div>
 
-                <div className="space-y-1.5">
-                  <Label htmlFor="slug-inp" className="text-xs font-bold">Custom Subdomain Slug *</Label>
+                <div className="space-y-2">
+                  <Label htmlFor="slug-inp" className="text-xs font-bold">Your Website Subdomain *</Label>
                   <div className="flex gap-2">
                     <div className="relative flex-1">
-                      <Input id="slug-inp" value={subdomainSlug} onChange={(e) => handleSubdomainChange(e.target.value)} className={`text-xs rounded-xl ${slugError ? 'border-red-500' : ''}`} />
+                      <Input
+                        id="slug-inp"
+                        value={subdomainSlug}
+                        onChange={(e) => handleSubdomainChange(e.target.value)}
+                        placeholder="e.g. uma"
+                        className={`text-xs rounded-xl ${slugError ? 'border-red-500' : ''}`}
+                      />
                     </div>
-                    <Button variant="outline" size="sm" onClick={handleApplySubdomain} disabled={!!slugError || subdomainSlug === tenant.id} className="text-xs font-bold h-10 rounded-xl px-4 shrink-0">
-                      Apply Change
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleApplySubdomain}
+                      disabled={!!slugError || !subdomainSlug || subdomainSlug === tenant.id || saving}
+                      className="text-xs font-bold h-10 rounded-xl px-4 shrink-0 bg-pink-600 text-white hover:bg-pink-700 disabled:opacity-50"
+                    >
+                      {saving ? 'Saving...' : 'Apply & Save'}
                     </Button>
                   </div>
                   {slugError ? (
@@ -881,9 +1001,27 @@ export function TenantCustomizer() {
                   ) : (
                     <p className="text-[10px] text-emerald-600 font-semibold flex items-center gap-0.5">
                       <CheckCircle className="w-3.5 h-3.5" />
-                      Subdomain is available and published!
+                      Subdomain is valid and available!
                     </p>
                   )}
+                </div>
+
+                {/* Live Public URL Preview Box */}
+                <div className="bg-slate-900 text-white p-4 rounded-2xl shadow-sm space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] uppercase tracking-wider text-slate-400 font-bold">Your Public Website URL</span>
+                    <a
+                      href={getSubdomainUrl(subdomainSlug || tenant.id)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[11px] text-pink-400 hover:text-pink-300 font-bold flex items-center gap-1 underline underline-offset-2"
+                    >
+                      Visit Public Site <Eye className="w-3 h-3" />
+                    </a>
+                  </div>
+                  <div className="bg-slate-800/80 px-3 py-2 rounded-xl text-xs font-mono text-pink-300 break-all border border-slate-700 select-all">
+                    {getSubdomainUrl(subdomainSlug || tenant.id)}
+                  </div>
                 </div>
               </div>
 
@@ -1146,17 +1284,8 @@ export function TenantCustomizer() {
             </div>
 
             {/* Live URL output card */}
-            <div className="bg-slate-50 p-3 rounded-xl border text-xs flex items-center justify-between font-mono break-all gap-3 text-slate-700">
-              <span className="truncate flex-1 text-left">{getSubdomainUrlFormatted(tenant.id)}</span>
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(getSubdomainUrl(tenant.id));
-                  toast({ title: 'Link Copied! 📋', description: 'Ready to share with your clients.' });
-                }}
-                className="text-pink-600 hover:text-pink-700 font-bold hover:underline shrink-0"
-              >
-                Copy
-              </button>
+            <div className="text-left">
+              <PublishedBanner websiteUrl={getSubdomainUrl(tenant.id)} />
             </div>
 
             {/* Live URL management buttons */}

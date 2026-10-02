@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth, DEMO_ROLES } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,13 +9,45 @@ import { Loader2, Lock, ShieldCheck, Crown, UserCheck, Sparkles, Building2, Eye,
 
 export function AdminLoginPage() {
   const navigate = useNavigate();
-  const { signIn, loginAsDemoRole } = useAuth();
+  const [searchParams] = useSearchParams();
+  const redirectParam = searchParams.get('redirect');
+  const { signIn, loginAsDemoRole, user, role, loading: authLoading } = useAuth();
   const { toast } = useToast();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // Preserve redirect destination in sessionStorage to survive refresh/handshakes
+  useEffect(() => {
+    if (redirectParam) {
+      sessionStorage.setItem('auth_redirect_target', redirectParam);
+    }
+  }, [redirectParam]);
+
+  const getEffectiveRedirect = useCallback(() => {
+    const postAuth = localStorage.getItem('postAuthRedirect');
+    if (postAuth) {
+      localStorage.removeItem('postAuthRedirect');
+      return postAuth;
+    }
+    const target = redirectParam || sessionStorage.getItem('auth_redirect_target');
+    if (target) {
+      sessionStorage.removeItem('auth_redirect_target');
+      return target;
+    }
+    return role === 'customer' ? '/profile' : '/admin/dashboard';
+  }, [redirectParam, role]);
+
+  // If already authenticated, redirect away from login
+  useEffect(() => {
+    if (authLoading) return;
+    if (user) {
+      const destination = getEffectiveRedirect();
+      navigate(destination, { replace: true });
+    }
+  }, [user, authLoading, getEffectiveRedirect, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,7 +59,8 @@ export function AdminLoginPage() {
         title: 'Login Successful',
         description: 'Welcome back to Nails by Uma Admin OS!',
       });
-      navigate('/admin/dashboard');
+      const destination = getEffectiveRedirect();
+      navigate(destination);
     } catch (error: any) {
       toast({
         title: 'Login Failed',
@@ -46,7 +79,8 @@ export function AdminLoginPage() {
       title: `Logged in as ${demoInfo.name}`,
       description: `Role: ${demoInfo.roleTitle} | Outlet: ${demoInfo.branch}`,
     });
-    navigate('/admin/dashboard');
+    const destination = getEffectiveRedirect();
+    navigate(destination);
   };
 
   return (
@@ -185,7 +219,13 @@ export function AdminLoginPage() {
             <Button
               variant="link"
               size="sm"
-              onClick={() => navigate('/admin/signup')}
+              onClick={() =>
+                navigate(
+                  redirectParam
+                    ? `/admin/signup?role=shop_owner&redirect=${encodeURIComponent(redirectParam)}`
+                    : '/admin/signup?role=shop_owner'
+                )
+              }
               className="text-pink-600 font-bold text-xs"
             >
               Create Account

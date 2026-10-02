@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Calendar, Menu, X, Phone, Crown, Heart, Clock } from 'lucide-react';
+import { Sparkles, Calendar, Menu, X, Phone, Crown, Heart, Clock, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTenant } from '@/contexts/TenantContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { getSubdomainUrl } from '@/utils/tenant';
 
@@ -13,9 +14,34 @@ export function Header() {
   const location = useLocation();
   const { tenant } = useTenant();
   const { toast } = useToast();
-  const { isAuthenticated, isCustomer, isShopOwner, isAdmin, signOut } = useAuth();
+  const { user, loading, isAuthenticated, isCustomer, isShopOwner, isAdmin, signOut } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+
+  // Handle Create Your Website CTA
+  const handleCreateWebsite = async () => {
+    // 1. If auth is still loading, verify session directly to prevent race conditions
+    if (loading) {
+      const { data } = await supabase.auth.getSession();
+      if (data?.session?.user) {
+        navigate('/admin/dashboard?tab=customizer');
+        return;
+      }
+      localStorage.setItem('postAuthRedirect', '/admin/dashboard?tab=customizer');
+      navigate('/admin/login?redirect=/admin/dashboard?tab=customizer');
+      return;
+    }
+
+    // 2. If user is logged in: directly open Customizer & Subdomains without signup/login
+    if (user) {
+      navigate('/admin/dashboard?tab=customizer');
+      return;
+    }
+
+    // 3. If logged out: save postAuthRedirect in localStorage and send to login
+    localStorage.setItem('postAuthRedirect', '/admin/dashboard?tab=customizer');
+    navigate('/admin/login?redirect=/admin/dashboard?tab=customizer');
+  };
 
   // Detect scroll offset for dynamic navbar transition
   useEffect(() => {
@@ -38,28 +64,11 @@ export function Header() {
 
   const navLinks = [
     { name: 'Home', href: '/' },
-    { name: 'Services', href: '/services' },
     { name: 'About', href: '/about' },
-    { name: 'Packages', href: '/packages' },
-    { name: 'Contact', href: '/contact' },
   ];
 
-  if (!isAuthenticated) {
-    navLinks.push(
-      { name: 'Login', href: '/admin/login' },
-      { name: 'Sign Up', href: '/admin/signup' }
-    );
-  } else if (isCustomer) {
-    navLinks.push(
-      { name: 'Book Now', href: '/book' },
-      { name: 'My Bookings', href: '/my-bookings' },
-      { name: 'Profile', href: '/profile' }
-    );
-  } else if (isShopOwner || isAdmin) {
-    navLinks.push(
-      { name: 'Dashboard', href: '/admin/dashboard' },
-      { name: 'Profile', href: '/profile' }
-    );
+  if (isShopOwner || isAdmin) {
+    navLinks.push({ name: 'Dashboard', href: '/admin/dashboard' });
   }
 
   return (
@@ -123,42 +132,22 @@ export function Header() {
 
           {/* CTA Buttons & Hamburger */}
           <div className="flex items-center gap-2 shrink-0">
-            {/* Quick Call Button (Desktop) */}
-            <a
-              href={`tel:${tenant.phone}`}
-              className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:text-pink-600 bg-white/80 border border-white/90 hover:border-pink-300 transition-all shadow-xs"
-            >
-              <Phone className="w-3.5 h-3.5 text-pink-500" />
-              <span>{tenant.phone}</span>
-            </a>
-
-            {/* Book Appointment CTA Button */}
+            {/* Create Website CTA Button */}
             <Button
-              onClick={() => {
-                if (!isAuthenticated) {
-                  toast({
-                    title: 'Customer Signup Required',
-                    description: 'Please create a free Client profile or login to schedule appointments.',
-                  });
-                  navigate('/admin/signup?role=customer');
-                } else {
-                  navigate('/book');
-                }
-              }}
-              className="hidden sm:inline-flex gap-1.5 sm:gap-2 bg-gradient-to-r from-pink-600 via-rose-500 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white rounded-xl shadow-md shadow-pink-600/25 font-bold text-xs sm:text-sm px-3 sm:px-5 py-2 sm:py-2.5 transition-all duration-300 hover:scale-105 active:scale-95"
+              onClick={handleCreateWebsite}
+              className="hidden md:inline-flex bg-gradient-to-r from-pink-500 to-rose-600 text-white hover:opacity-90 px-4 py-2 rounded-full text-xs font-medium transition-all shadow-sm cursor-pointer"
             >
-              <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span>Book Appointment</span>
+              Create Your Website
             </Button>
 
             {/* Logout Action (Desktop) */}
             {isAuthenticated && (
               <Button
-                variant="outline"
-                size="sm"
+                variant="ghost"
                 onClick={signOut}
-                className="hidden xl:inline-flex rounded-xl text-xs font-semibold text-rose-600 border-rose-100 hover:bg-rose-50 h-9"
+                className="text-slate-600 hover:text-rose-600 hover:bg-rose-50 font-medium text-xs"
               >
+                <LogOut className="w-4 h-4 mr-2" />
                 Logout
               </Button>
             )}
@@ -198,17 +187,29 @@ export function Header() {
                     }`}
                   >
                     <span>{link.name}</span>
-                    {isActive && <Sparkles className="w-4 h-4 text-pink-500" />}
                   </Link>
                 );
               })}
+
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  handleCreateWebsite();
+                }}
+                className="w-full flex items-center justify-between py-2.5 px-4 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-pink-500 to-rose-600 mt-2 text-left cursor-pointer"
+              >
+                <span>Create Your Website</span>
+                <Sparkles className="w-4 h-4" />
+              </button>
 
               {isAuthenticated && (
                 <button
                   type="button"
                   onClick={() => { signOut(); setMobileMenuOpen(false); }}
-                  className="flex items-center justify-between py-2.5 px-4 rounded-xl text-sm font-semibold text-rose-600 hover:bg-rose-50/50 w-full text-left"
+                  className="flex items-center w-full py-2.5 px-4 rounded-xl text-sm font-semibold text-slate-700 hover:text-rose-600 hover:bg-rose-50"
                 >
+                  <LogOut className="w-4 h-4 mr-2" />
                   <span>Logout</span>
                 </button>
               )}

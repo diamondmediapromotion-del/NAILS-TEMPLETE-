@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   Sparkles,
   Calendar,
@@ -20,6 +21,7 @@ import {
 export function MobileBottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
   const [moreDrawerOpen, setMoreDrawerOpen] = useState(false);
 
   const isActive = (path: string) => location.pathname === path;
@@ -31,7 +33,7 @@ export function MobileBottomNav() {
     { name: 'Client Reviews', href: '/reviews', icon: Star },
     { name: 'FAQ & Location', href: '/faq', icon: HelpCircle },
     { name: 'Contact & WhatsApp', href: '/contact', icon: Phone },
-    { name: 'Admin Dashboard', href: '/admin/login', icon: ShieldAlert },
+    { name: 'Admin Dashboard', href: isAuthenticated ? '/admin/dashboard' : '/admin/login', icon: ShieldAlert },
   ];
 
   return (

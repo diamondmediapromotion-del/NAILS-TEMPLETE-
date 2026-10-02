@@ -70,22 +70,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchProfileForUser = async (userId: string) => {
     try {
+      // 1. Fetch profile strictly from DB
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
-        .eq('user_id', userId)
+        .select('*, role') // Explicitly select role
+        .eq('id', userId) // Use 'id' (UUID PK) matching auth.users(id)
         .maybeSingle();
+
+      if (error) throw error;
 
       if (data) {
         setProfile(data);
+        // The authoritative source of truth for authorization is 'role' from 'profiles'
         setRole(data.role || 'customer');
       } else {
-        // Safe profile setup state instead of crashing
-        setProfile({ user_id: userId, role: 'customer' });
+        // Fallback only if no profile exists
+        setProfile({ id: userId, role: 'customer' });
         setRole('customer');
       }
     } catch (err) {
       console.error('Failed to load profile:', err);
+      // Fallback on error to prevent total lockout, but log critical failure
       setRole('customer');
     }
   };
@@ -99,64 +104,61 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
-    // Check if demo user is stored in localStorage
-    const savedDemoUser = localStorage.getItem('aura_demo_user');
-    if (savedDemoUser) {
-      try {
-        const parsed = JSON.parse(savedDemoUser) as DemoUser;
-        setDemoUser(parsed);
-        setUser(parsed);
-        setProfile(null);
-        setRole(parsed.role || 'owner');
-        setLoading(false);
-      } catch (err) {
-        console.warn('Could not parse demo user state:', err);
-      }
-    }
-
-    // Check existing Supabase session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // 1. Initial Session & Demo User Setup
+    const initializeAuth = async () => {
+      setLoading(true);
+      
+      const savedDemoUser = localStorage.getItem('aura_demo_user');
+      
+      // Check Supabase session
+      const { data: { session } } = await supabase.auth.getSession();
+      
       if (mounted) {
         if (session?.user) {
           setUser(session.user);
           setDemoUser(null);
-          fetchProfileForUser(session.user.id).finally(() => {
-            if (mounted) setLoading(false);
-          });
-        } else {
-          if (!savedDemoUser) {
-            setUser(null);
-            setProfile(null);
+          await fetchProfileForUser(session.user.id);
+        } else if (savedDemoUser) {
+          try {
+            const parsed = JSON.parse(savedDemoUser) as DemoUser;
+            setDemoUser(parsed);
+            setUser(parsed);
+            setRole(parsed.role || 'owner');
+          } catch (err) {
+            console.warn('Could not parse demo user:', err);
+            localStorage.removeItem('aura_demo_user');
           }
-          setLoading(false);
         }
+        setLoading(false);
       }
-    });
+    };
 
-    // Listen for auth changes
+    initializeAuth();
+
+    // 2. Auth State Change Subscription
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
 
-      if (event === 'SIGNED_IN' && session?.user) {
-        setUser(session.user);
-        setDemoUser(null);
-        localStorage.removeItem('aura_demo_user');
-        setLoading(true);
-        await fetchProfileForUser(session.user.id);
-        if (mounted) setLoading(false);
-      } else if (event === 'SIGNED_OUT') {
-        if (!localStorage.getItem('aura_demo_user')) {
-          setUser(null);
+      console.log('Auth state change:', event, session?.user?.id);
+
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        if (session?.user) {
+          setLoading(true); // Start loading to prevent flicker
+          setUser(session.user);
           setDemoUser(null);
-          setProfile(null);
-          setRole('customer');
+          localStorage.removeItem('aura_demo_user');
+          await fetchProfileForUser(session.user.id);
+          if (mounted) setLoading(false);
         }
+      } else if (event === 'SIGNED_OUT') {
+        setLoading(true); // Start loading to prevent flicker
+        setUser(null);
+        setDemoUser(null);
+        setProfile(null);
+        setRole('customer');
         if (mounted) setLoading(false);
-      } else if (event === 'TOKEN_REFRESHED' && session?.user) {
-        setUser(session.user);
-        await fetchProfileForUser(session.user.id);
       }
     });
 
@@ -182,19 +184,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       password,
     });
     if (error) {
-      // Fallback demo login if email matches demo role
-      if (email.includes('uma') || email.includes('owner')) {
-        loginAsDemoRole('owner');
-        return;
-      }
-      if (email.includes('manager')) {
-        loginAsDemoRole('manager');
-        return;
-      }
-      if (email.includes('receptionist') || email.includes('frontdesk')) {
-        loginAsDemoRole('receptionist');
-        return;
-      }
       throw error;
     }
     return data;

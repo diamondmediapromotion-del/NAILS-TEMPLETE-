@@ -53,28 +53,6 @@ const DEFAULT_TENANTS: Record<string, TenantConfig> = {
     theme_color: 'pink',
     is_published: true,
   },
-  royalbeauty: {
-    id: 'royalbeauty',
-    business_name: 'Royal Beauty & Nails',
-    tagline: 'Where Royalty Meets Exquisite Nail Art',
-    logo_url: '',
-    banner_image_url: 'https://images.unsplash.com/photo-1519014816548-bf5fe059798b?w=1200&h=600&fit=crop&q=80',
-    address: 'Sunder Lane, C-Scheme, Jaipur, Rajasthan 302001',
-    phone: '+91 98765 43210',
-    whatsapp: '+919876543210',
-    email: 'hello@royalbeauty.in',
-    facebook_url: 'https://facebook.com/royalbeauty',
-    instagram_url: 'https://instagram.com/royalbeauty',
-    about_heading: 'Our Royal Beauty Commitment',
-    about_text: 'Experience the ultimate royal treatment. Our team of certified expert stylists and nail artists deliver customized, high-luxury nail extensions, Swarovski embellishments, and anti-tan therapies designed for the modern queen.',
-    about_image_url: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&h=1000&fit=crop&q=80',
-    timings: 'Monday - Sunday: 11:00 AM - 9:00 PM',
-    seo_title: 'Royal Beauty & Nails | Premium Nail Studio & Facials',
-    seo_description: 'Unleash your inner royalty. High-precision extensions, luxury facials, and bridal nail packages at Royal Beauty Jaipur.',
-    seo_keywords: 'luxury beauty parlor, nail art, extensions, facials',
-    theme_color: 'purple',
-    is_published: true,
-  },
 };
 
 interface TenantContextType {
@@ -93,7 +71,28 @@ const TenantContext = createContext<TenantContextType | undefined>(undefined);
 export function getActiveTenantId(): string {
   if (typeof window === 'undefined') return 'nailsbyuma';
 
-  // 1. Path-based /site/{slug} fallback
+  // 1. Check Subdomains (e.g. uma.nailsbyuma.asia-east1.run.app, uma.localhost, uma.mysalon.com)
+  const hostname = window.location.hostname;
+  const parts = hostname.split('.');
+  if (parts.length >= 2) {
+    const subdomain = parts[0].toLowerCase();
+    const reservedWords = [
+      'localhost',
+      'ais-dev',
+      'ais-pre',
+      'www',
+      'platform',
+      'app',
+      'admin',
+      'api',
+      'nailsbyuma',
+    ];
+    if (!reservedWords.includes(subdomain) && !subdomain.startsWith('127') && !subdomain.startsWith('192')) {
+      return subdomain;
+    }
+  }
+
+  // 2. Path-based /site/{slug} fallback
   const pathname = window.location.pathname;
   if (pathname.startsWith('/site/')) {
     const slug = pathname.split('/site/')[1]?.split('/')[0];
@@ -104,23 +103,12 @@ export function getActiveTenantId(): string {
     }
   }
 
-  // 2. Check Subdomains (e.g. royalbeauty.localhost or royalbeauty.platform.com)
-  const hostname = window.location.hostname;
-  const parts = hostname.split('.');
-  if (parts.length > 1) {
-    const subdomain = parts[0].toLowerCase();
-    const reservedWords = ['localhost', 'ais-dev', 'ais-pre', 'www', 'platform', 'app', 'admin', 'api'];
-    if (!reservedWords.includes(subdomain) && !subdomain.startsWith('127') && !subdomain.startsWith('192')) {
-      return subdomain;
-    }
-  }
-
-  // 3. Check Query Parameter (e.g. ?tenant=royalbeauty)
+  // 3. Check Query Parameter (e.g. ?tenant=uma or ?site=uma)
   const params = new URLSearchParams(window.location.search);
-  const queryTenant = params.get('tenant');
+  const queryTenant = params.get('tenant') || params.get('site');
   if (queryTenant) return queryTenant.toLowerCase();
 
-  // 4. Check Preview Cookie / LocalStorage Fallback
+  // 4. Check Preview / Stored Active Tenant Fallback
   const previewTenant = localStorage.getItem('current_tenant_preview');
   if (previewTenant) return previewTenant.toLowerCase();
 
@@ -145,27 +133,61 @@ export function TenantProvider({ children }: { children: ReactNode }) {
 
     try {
       const { data, error } = await supabase.from('tenants').select('*');
+      
+      if (error && error.code === '42P01') {
+        console.warn('Tenants table does not exist, using default tenant configuration.');
+        setTenant(DEFAULT_TENANTS.nailsbyuma);
+        setIsLoading(false);
+        return;
+      }
 
-      let tenantsList: TenantConfig[] = [];
-      if (error || !data || data.length === 0) {
-        // Fallback to initial seeds stored in localStorage
-        const localTenantsRaw = localStorage.getItem('luxenails_tenants');
-        if (localTenantsRaw) {
-          tenantsList = JSON.parse(localTenantsRaw);
-        } else {
-          tenantsList = Object.values(DEFAULT_TENANTS);
-          localStorage.setItem('luxenails_tenants', JSON.stringify(tenantsList));
+      const tenantsList = (data as TenantConfig[]) || [];
+
+      // Query websites to match subdomain to tenant
+      let activeTenant = tenantsList.find((t) => t.id === activeId);
+
+      if (!activeTenant && activeId !== 'nailsbyuma') {
+        try {
+          const { data: websiteMatch } = await supabase
+            .from('websites')
+            .select('*')
+            .or(`slug.eq.${activeId},subdomain.eq.${activeId}`)
+            .maybeSingle();
+
+          if (websiteMatch) {
+            activeTenant = tenantsList.find((t) => t.id === websiteMatch.id || t.id === websiteMatch.slug) || {
+              id: websiteMatch.slug || websiteMatch.subdomain || activeId,
+              business_name: websiteMatch.business_name || websiteMatch.site_name || 'My Studio',
+              tagline: 'Luxury Salon Studio & Custom Embellishments',
+              logo_url: '',
+              banner_image_url: 'https://images.unsplash.com/photo-1632345031435-8727f6897d53?w=1920&h=800&fit=crop&q=85',
+              address: 'Sector 5, Mansarovar, Jaipur, Rajasthan 302020',
+              phone: '+91 99999 99999',
+              whatsapp: '+919999999999',
+              email: '',
+              facebook_url: '',
+              instagram_url: '',
+              about_heading: `Welcome to ${websiteMatch.business_name || websiteMatch.site_name || 'Our Studio'}`,
+              about_text: 'Crafting bespoke beauty and luxury styling experiences.',
+              about_image_url: 'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=800&h=1000&fit=crop&q=80',
+              timings: 'Monday - Sunday: 10:00 AM - 8:00 PM',
+              seo_title: `${websiteMatch.business_name || websiteMatch.site_name} | Salon & Studio`,
+              seo_description: `Book appointments at ${websiteMatch.business_name || websiteMatch.site_name}.`,
+              seo_keywords: 'salon, beauty, booking, nails',
+              theme_color: 'pink',
+              is_published: websiteMatch.published !== false,
+            };
+          }
+        } catch {
+          // ignore
         }
-      } else {
-        tenantsList = data as TenantConfig[];
       }
 
       setAllTenants(tenantsList);
-
-      const activeTenant = tenantsList.find((t) => t.id === activeId) || tenantsList.find((t) => t.id === 'nailsbyuma') || DEFAULT_TENANTS.nailsbyuma;
-      setTenant(activeTenant);
+      setTenant(activeTenant || tenantsList.find((t) => t.id === 'nailsbyuma') || DEFAULT_TENANTS.nailsbyuma);
     } catch (err) {
-      console.warn('Using fallback configuration for tenants:', err);
+      console.error('Failed to load tenants from Supabase:', err);
+      // Fallback only if absolutely necessary for the first tenant
       setTenant(DEFAULT_TENANTS.nailsbyuma);
     } finally {
       setIsLoading(false);
@@ -274,36 +296,19 @@ export function TenantProvider({ children }: { children: ReactNode }) {
     );
   }
 
-  if (isPublicRoute && activeId !== 'nailsbyuma') {
-    if (!exists) {
-      return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-white p-6 text-center text-slate-800">
-          <span className="text-4xl">🔍</span>
-          <h1 className="text-2xl font-serif font-bold text-slate-900 mt-4">Website Not Found</h1>
-          <p className="text-xs text-slate-500 mt-2 max-w-sm leading-relaxed">
-            The subdomain you are trying to reach does not correspond to an active salon website in our multi-tenant network.
-          </p>
-          <a href="/admin/signup" className="mt-6 bg-pink-600 hover:bg-pink-700 text-white font-bold px-6 py-2.5 rounded-xl text-xs shadow-md">
-            Create Your Own Salon Website
-          </a>
-        </div>
-      );
-    }
-
-    if (!tenant.is_published) {
-      return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-white p-6 text-center text-slate-800">
-          <span className="text-4xl">🔒</span>
-          <h1 className="text-2xl font-serif font-bold text-slate-900 mt-4">This Website is Currently Offline</h1>
-          <p className="text-xs text-slate-500 mt-2 max-w-sm leading-relaxed">
-            The website owner has saved their changes in draft mode and has not published their site live yet. Please check back later.
-          </p>
-          <a href="/admin/login" className="mt-6 bg-slate-900 hover:bg-slate-800 text-white font-bold px-6 py-2.5 rounded-xl text-xs">
-            Login as Owner to Publish
-          </a>
-        </div>
-      );
-    }
+  if (isPublicRoute && !tenant.is_published) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white p-6 text-center text-slate-800">
+        <span className="text-4xl">🔒</span>
+        <h1 className="text-2xl font-serif font-bold text-slate-900 mt-4">This Website is Currently Offline</h1>
+        <p className="text-xs text-slate-500 mt-2 max-w-sm leading-relaxed">
+          The website owner has saved their changes in draft mode and has not published their site live yet. Please check back later.
+        </p>
+        <a href="/admin/login" className="mt-6 bg-slate-900 hover:bg-slate-800 text-white font-bold px-6 py-2.5 rounded-xl text-xs">
+          Login as Owner to Publish
+        </a>
+      </div>
+    );
   }
 
   return (

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth, DEMO_ROLES } from '@/contexts/AuthContext';
 import { useTenant } from '@/contexts/TenantContext';
 import { supabase } from '@/lib/supabase';
@@ -13,6 +13,8 @@ import { ReviewIncentiveAdminSection } from '@/components/features/ReviewIncenti
 import { PackagesManagementSection } from '@/components/features/PackagesManagementSection';
 import { GalleryManagementSection } from '@/components/features/GalleryManagementSection';
 import { TenantCustomizer } from '@/components/features/TenantCustomizer';
+import { PublishedBanner } from '@/components/common/PublishedBanner';
+import { getSubdomainUrl } from '@/utils/tenant';
 import {
   Booking,
   WaitlistEntry,
@@ -83,12 +85,25 @@ type AdminTab =
 
 export function AdminDashboard() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, demoUser, role, selectedBranch, signOut, loginAsDemoRole, setSelectedBranch } =
     useAuth();
   const { tenant } = useTenant();
   const { toast } = useToast();
 
-  const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
+  const [activeTab, setActiveTab] = useState<AdminTab>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab');
+      if (tabParam === 'template' || tabParam === 'customizer') {
+        return 'template';
+      }
+      if (tabParam) {
+        return tabParam as AdminTab;
+      }
+    }
+    return 'dashboard';
+  });
   const [loading, setLoading] = useState(false);
 
   // New Booking photo states
@@ -166,14 +181,17 @@ export function AdminDashboard() {
   // Initialize Initial Persistent State
   useEffect(() => {
     loadAllData();
-    
-    // Check if redirecting from signup onboarding to editor customizer
-    const params = new URLSearchParams(window.location.search);
-    const tabParam = params.get('tab');
-    if (tabParam === 'template') {
-      setActiveTab('template');
-    }
   }, []);
+
+  // Sync tab with URL search parameter (?tab=customizer or ?tab=template)
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'template' || tabParam === 'customizer') {
+      setActiveTab('template');
+    } else if (tabParam) {
+      setActiveTab(tabParam as AdminTab);
+    }
+  }, [searchParams]);
 
   const loadAllData = async () => {
     setLoading(true);
@@ -949,7 +967,10 @@ export function AdminDashboard() {
               </button>
 
               <button
-                onClick={() => setActiveTab('template')}
+                onClick={() => {
+                  setActiveTab('template');
+                  navigate('/admin/dashboard?tab=customizer', { replace: true });
+                }}
                 className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   activeTab === 'template'
                     ? 'bg-pink-600 text-white shadow-sm'
@@ -964,6 +985,10 @@ export function AdminDashboard() {
 
           {/* Main Tab Content View */}
           <main className="lg:col-span-9 space-y-6">
+            {tenant?.is_published && (
+              <PublishedBanner websiteUrl={getSubdomainUrl(tenant.id)} />
+            )}
+
             {/* 1. DASHBOARD & ANALYTICS TAB */}
             {activeTab === 'dashboard' && (
               <div className="space-y-6">

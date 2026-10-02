@@ -52,7 +52,7 @@
   * {
     @apply border-border;
     box-sizing: border-box;
-    max-width: 100vw;
+    max-width: 100%;
     overflow-wrap: anywhere;
   }
   *:focus-visible {

@@ -1,16 +1,22 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTenant } from '@/contexts/TenantContext';
+import { websiteService } from '@/services/websiteService';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { UserPlus, ArrowLeft, Building2, User, Eye, EyeOff } from 'lucide-react';
+import { UserPlus, ArrowLeft, Building2, User, Eye, EyeOff, Loader2 } from 'lucide-react';
 
 export function AdminSignupPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { user, profile, loading: authLoading, refreshProfile } = useAuth();
+  const { switchTenant } = useTenant();
   const [loading, setLoading] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
   const roleParam = searchParams.get('role');
   const [selectedRole, setSelectedRole] = useState<'shop_owner' | 'customer'>(
     roleParam === 'customer' ? 'customer' : 'shop_owner'
@@ -26,11 +32,42 @@ export function AdminSignupPage() {
     phone: '',
   });
 
+  // Preserve redirect destination in sessionStorage to survive refresh/handshakes
+  useEffect(() => {
+    const redirectParam = searchParams.get('redirect');
+    if (redirectParam) {
+      sessionStorage.setItem('auth_redirect_target', redirectParam);
+    }
+  }, [searchParams]);
+
+  const getEffectiveRedirect = useCallback(() => {
+    const postAuth = localStorage.getItem('postAuthRedirect');
+    if (postAuth) {
+      localStorage.removeItem('postAuthRedirect');
+      return postAuth;
+    }
+    const target = searchParams.get('redirect') || sessionStorage.getItem('auth_redirect_target');
+    if (target) {
+      sessionStorage.removeItem('auth_redirect_target');
+      return target;
+    }
+    return selectedRole === 'shop_owner' ? '/admin/dashboard?tab=customizer' : (roleParam === 'customer' ? '/profile' : '/admin/dashboard?tab=customizer');
+  }, [searchParams, selectedRole, roleParam]);
+
+  // If already logged in, do not force them into signup flow!
+  useEffect(() => {
+    if (authLoading) return;
+    if (user) {
+      const destination = getEffectiveRedirect();
+      navigate(destination, { replace: true });
+    }
+  }, [user, authLoading, getEffectiveRedirect, navigate]);
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validation
-    if (!formData.email || !formData.password) {
+    if (!formData.email || !formData.password || !formData.username) {
       toast.error('Please fill all fields');
       return;
     }
@@ -48,112 +85,56 @@ export function AdminSignupPage() {
     setLoading(true);
 
     try {
-      // Sign up with Supabase (with email confirmation disabled)
+      // 1. Sign up with Supabase
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
-          emailRedirectTo: window.location.origin + (selectedRole === 'shop_owner' ? '/admin/dashboard' : '/my-bookings'),
           data: {
-            username: formData.username,
             full_name: formData.username,
-            phone: formData.phone,
             role: selectedRole,
-            referred_by: referralCode.trim() || null,
           },
         },
       });
 
-      console.log('Signup response:', { data, error });
-
       if (error) throw error;
 
       if (data.user) {
-        const cleanSlug = formData.username.toLowerCase().replace(/[^a-z0-9]/g, '') || `site_${Date.now()}`;
-        const generatedReferralCode = formData.username.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 5) + Math.floor(100 + Math.random() * 900);
-        
-        // 1. Create Profile
-        const newProfile = {
-          id: data.user.id,
-          user_id: data.user.id,
-          full_name: formData.username,
-          email: formData.email,
-          phone: formData.phone,
-          role: selectedRole,
-          referral_code: generatedReferralCode,
-          referred_by: referralCode.trim() || null,
-        };
-        await supabase.from('profiles').insert(newProfile);
-
-        // 2. Create Website / Tenant Config (ONLY FOR SHOP OWNERS)
+        // 2. Website / Tenant Config (ONLY FOR SHOP OWNERS)
         if (selectedRole === 'shop_owner') {
-          const newWebsite = {
-            id: cleanSlug,
-            owner_id: data.user.id,
-            site_name: formData.username,
-            business_name: `${formData.username} Salon`,
-            slug: cleanSlug,
-            subdomain: cleanSlug,
-            logo_url: '',
-            favicon_url: '',
-            published: true,
-          };
-          await supabase.from('websites').insert(newWebsite);
-
-          // Also register inside our tenants list
-          const newTenantConfig = {
-            id: cleanSlug,
-            business_name: `${formData.username} Salon`,
-            tagline: 'Luxury Salon Studio & Custom Embellishments',
-            logo_url: '',
-            banner_image_url: 'https://images.unsplash.com/photo-1632345031435-8727f6897d53?w=1200&h=600&fit=crop&q=80',
-            address: 'Jaipur, Rajasthan',
-            phone: formData.phone || '+91 99999 99999',
-            whatsapp: formData.phone || '+919999999999',
-            email: formData.email,
-            facebook_url: '',
-            instagram_url: '',
-            about_heading: 'Crafting Artistry',
-            about_text: 'Bespoke hand-crafted nail extensions and deluxe spa treatments.',
-            about_image_url: 'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=800&h=1000&fit=crop&q=80',
-            timings: 'Monday - Sunday: 10:00 AM - 8:00 PM',
-            seo_title: `${formData.username} Salon | Premium Nail Studio`,
-            seo_description: `Professional treatments at ${formData.username} Salon.`,
-            seo_keywords: 'nail art, salon',
-            theme_color: 'pink' as const,
-            is_published: true,
-          };
-          await supabase.from('tenants').insert(newTenantConfig);
-
-          // Set the active tenant locally for instant preview routing
-          localStorage.setItem('current_tenant_preview', cleanSlug);
+          try {
+            const { website } = await websiteService.ensureUserWebsite(data.user, {
+              full_name: formData.username,
+              phone: formData.phone,
+            });
+            if (website?.slug || website?.id) {
+              const slug = website.slug || website.id;
+              localStorage.setItem('current_tenant_preview', slug);
+            }
+          } catch (webErr) {
+            console.warn('Website setup notice:', webErr);
+          }
         }
 
-        // User account created, auto-login directly
         toast.success(
           selectedRole === 'shop_owner'
-            ? 'Partner store account and custom site created successfully!'
-            : 'Customer account created successfully!'
+            ? 'Account and salon site created!'
+            : 'Customer account created!'
         );
         
-        await supabase.auth.signInWithPassword({
-          email: formData.email,
-          password: formData.password,
-        });
+        // Auto-login
+        try {
+          await supabase.auth.signInWithPassword({
+            email: formData.email,
+            password: formData.password,
+          });
+          await refreshProfile();
+        } catch (loginErr) {
+          console.warn('Auto-login notice:', loginErr);
+        }
 
-        // Wait a moment for auth state to update
-        setTimeout(() => {
-          if (selectedRole === 'shop_owner') {
-            navigate('/admin/dashboard?tab=template');
-          } else {
-            navigate('/my-bookings');
-          }
-        }, 500);
-      } else {
-        toast.success('Account created! You can now login.');
-        setTimeout(() => {
-          navigate('/admin/login');
-        }, 1500);
+        const destination = getEffectiveRedirect();
+        navigate(destination);
       }
     } catch (error: any) {
       console.error('Signup error:', error);
@@ -335,7 +316,10 @@ export function AdminSignupPage() {
           {/* Back to Login */}
           <div className="mt-5 text-center">
             <button
-              onClick={() => navigate('/admin/login')}
+              onClick={() => {
+                const redirectParam = searchParams.get('redirect');
+                navigate(redirectParam ? `/admin/login?redirect=${encodeURIComponent(redirectParam)}` : '/admin/login');
+              }}
               className="text-xs text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1 font-bold"
             >
               <ArrowLeft className="w-4 h-4" />
